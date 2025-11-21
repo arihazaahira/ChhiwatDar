@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "title": "Tajine",
+    "image": "/assets/BERBER VEGETARIAN TAGINE.jpeg",
+    "description": "Le tajine est le plat emblématique du Maroc, cuit lentement dans son plat en terre cuite conique.",
+    "ingredients": ["viande", "légumes", "épices", "huile d'olive"],
+    "category": "plat principal"
+  },
+  {
+    "id": 2,
+    "title": "Bastila",
+    "image": "/assets/Moroccan Chicken Bastila بسطيلة الدجاج المغربية.jpeg",
+    "description": "Une merveille de la cuisine marocaine qui marie le sucré et le salé.",
+    "ingredients": ["poulet", "amandes", "canelle", "feuilles de brick"],
+    "category": "plat principal"
+  },
+  {
+    "id": 3,
+    "title": "Batbout",
+    "image": "/assets/batbout.jpeg",
+    "description": "Pain marocain moelleux cuit à la poêle.",
+    "ingredients": ["farine", "levure", "sel", "eau"],
+    "category": "pain"
+  },
+  {
+    "id": 4,
+    "title": "Couscous",
+    "image": "/assets/couscous.jpg",
+    "description": "Le plat national du Maroc, servi traditionnellement le vendredi.",
+    "ingredients": ["semoule", "légumes", "viande", "épices"],
+    "category": "plat principal"
+  },
+  {
+    "id": 5,
+    "title": "Harira",
+    "image": "/assets/Ramadan traditional table of Morocco _ Harira.jpeg",
+    "description": "Soupe traditionnelle marocaine riche et réconfortante.",
+    "ingredients": ["lentilles", "pois chiches", "tomates", "épices"],
+    "category": "soupe"
+  },
+  {
+    "id": 6,
+    "title": "Poulet",
+    "image": "/assets/poule.jpeg",
+    "description": "Poulet marocain aux épices et olives.",
+    "ingredients": ["poulet", "olives", "citron", "épices"],
+    "category": "plat principal"
+  }
+]
