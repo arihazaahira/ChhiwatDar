@@ -1,13 +1,9 @@
 import React from 'react';
-import ChhiwatDar from './components/ChhiwatDar';
-import './App.css';
+import Home from './pages/Home';
+import './styles/ChhiwatDar.css';
 
 function App() {
-    return (
-        <div className="App">
-            <ChhiwatDar />
-        </div>
-    );
+  return <Home />;
 }
 
 export default App;
