@@ -15,17 +15,4 @@ export const recipeImages = {
   poulet: pouletImage
 };
 
-// Export pour les IDs de recettes
-export const getRecipeImage = (recipeId) => {
-  const imageMap = {
-    1: tajineImage,
-    2: couscousImage,
-    3: bastilaImage,
-    4: hariraImage,
-    5: batboutImage,
-    6: pouletImage
-  };
-  return imageMap[recipeId] || tajineImage;
-};
-
 export default recipeImages;

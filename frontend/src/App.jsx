@@ -1,9 +1,9 @@
 import React from 'react';
-import Home from './pages/Home';
+import Router from './router';
 import './styles/ChhiwatDar.css';
 
 function App() {
-  return <Home />;
+  return <Router />;
 }
 
 export default App;

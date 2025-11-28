@@ -1,50 +1,26 @@
 [
   {
     "id": 1,
-    "title": "Tajine",
-    "image": "/assets/BERBER VEGETARIAN TAGINE.jpeg",
-    "description": "Le tajine est le plat emblématique du Maroc, cuit lentement dans son plat en terre cuite conique.",
-    "ingredients": ["viande", "légumes", "épices", "huile d'olive"],
-    "category": "plat principal"
+    "title": "Tajine de Poulet aux Citrons Confits",
+    "description": "Un plat marocain emblématique cuit lentement avec des citrons confits et des olives, révélant des saveurs complexes et une viande tendre qui fond dans la bouche.",
+    "image": "/assets/tagine.jpeg",
+    "ingredients": ["poulet", "citrons confits", "olives", "oignons", "ail", "gingembre", "safran"],
+    "instructions": "1. Préparation des ingrédients :\n   - Couper le poulet en morceaux\n   - Émincer finement les oignons\n   - Presser l'ail\n   - Couper les citrons confits en quartiers\n\n2. Cuisson de base :\n   - Dans un tajine, faire chauffer l'huile d'olive à feu moyen\n   - Faire revenir les oignons et l'ail jusqu'à translucidité\n   - Ajouter les morceaux de poulet et les dorer sur toutes les faces\n\n3. Assaisonnement :\n   - Incorporer le gingembre, le safran, le sel et le poivre\n   - Bien mélanger pour enrober le poulet\n   - Ajouter les citrons confits et les olives\n\n4. Mijotage :\n   - Couvrir d'eau à mi-hauteur des ingrédients\n   - Couvrir le tajine et laisser mijoter à feu doux pendant 1h15\n   - Ne pas soulever le couvercle pendant la cuisson\n\n5. Finalisation :\n   - Vérifier la cuisson du poulet\n   - Rectifier l'assaisonnement si nécessaire\n   - Parsemer de coriandre et persil frais\n\n6. Service :\n   - Servir directement dans le tajine\n   - Accompagner de pain marocain traditionnel",
+    "temps_cuisson": "90 minutes",
+    "difficulte": "Moyenne",
+    "personnes": "4-6 personnes",
+    "conseils": "Pour un tajine parfait, laissez-le mijoter à feu très doux et ne soulevez pas le couvercle pendant la cuisson. Les citrons confits apportent une saveur unique - ne les remplacez pas par des citrons frais."
   },
   {
     "id": 2,
-    "title": "Bastila",
-    "image": "/assets/Moroccan Chicken Bastila بسطيلة الدجاج المغربية.jpeg",
-    "description": "Une merveille de la cuisine marocaine qui marie le sucré et le salé.",
-    "ingredients": ["poulet", "amandes", "canelle", "feuilles de brick"],
-    "category": "plat principal"
-  },
-  {
-    "id": 3,
-    "title": "Batbout",
-    "image": "/assets/batbout.jpeg",
-    "description": "Pain marocain moelleux cuit à la poêle.",
-    "ingredients": ["farine", "levure", "sel", "eau"],
-    "category": "pain"
-  },
-  {
-    "id": 4,
-    "title": "Couscous",
-    "image": "/assets/couscous.jpg",
-    "description": "Le plat national du Maroc, servi traditionnellement le vendredi.",
-    "ingredients": ["semoule", "légumes", "viande", "épices"],
-    "category": "plat principal"
-  },
-  {
-    "id": 5,
-    "title": "Harira",
-    "image": "/assets/Ramadan traditional table of Morocco _ Harira.jpeg",
-    "description": "Soupe traditionnelle marocaine riche et réconfortante.",
-    "ingredients": ["lentilles", "pois chiches", "tomates", "épices"],
-    "category": "soupe"
-  },
-  {
-    "id": 6,
-    "title": "Poulet",
-    "image": "/assets/poule.jpeg",
-    "description": "Poulet marocain aux épices et olives.",
-    "ingredients": ["poulet", "olives", "citron", "épices"],
-    "category": "plat principal"
+    "title": "Couscous aux Légumes",
+    "description": "Le plat traditionnel du vendredi, une symphonie de semoule fine accompagnée de légumes de saison et d'un bouillon parfumé aux épices marocaines.",
+    "image": "/assets/couscous.jpeg",
+    "ingredients": ["semoule", "carottes", "courgettes", "navets", "pois chiches", "agneau"],
+    "instructions": "ÉTAPE 1 : PRÉPARATION DE LA SEMOULE\n- Verser 500g de semoule moyenne dans un grand plat\n- Humidifier avec 250ml d'eau salée\n- Séparer les grains à la fourchette\n- Laisser reposer 15 minutes\n\nÉTAPE 2 : PRÉPARATION DU BOUILLON\n- Dans le bas du couscoussier, faire revenir 1 oignon émincé dans l'huile d'olive\n- Ajouter 2 tomates pelées et coupées en morceaux\n- Incorporer les épices : gingembre, curcuma, safran\n- Laisser mijoter 5 minutes\n\nÉTAPE 3 : CUISSON DES LÉGUMES\n- Ajouter les carottes et navets coupés en tronçons\n- Ajouter les pois chiches trempés\n- Couvrir de 3 litres d'eau chaude\n- Porter à ébullition puis baisser le feu\n\nÉTAPE 4 : CUISSON À LA VAPEUR\n- Placer la semoule dans le panier supérieur du couscoussier\n- Cuire à la vapeur pendant 45 minutes\n- Retirer la semoule et l'arroser d'eau froide\n- Séparer les grains à la fourchette\n\nÉTAPE 5 : FINALISATION\n- Ajouter les courgettes dans le bouillon\n- Remettre la semoule à cuire 30 minutes supplémentaires\n- Vérifier la cuisson des légumes\n- Rectifier l'assaisonnement du bouillon\n\nÉTAPE 6 : SERVICE TRADITIONNEL\n- Dresser la semoule en dôme dans un grand plat\n- Disposer les légures autour harmonieusement\n- Servir le bouillon à part dans une soupière\n- Chacun se sert selon ses préférences",
+    "temps_cuisson": "120 minutes",
+    "difficulte": "Facile",
+    "personnes": "6-8 personnes",
+    "conseils": "Pour une semoule parfaite, faites-la cuire à la vapeur trois fois en la travaillant entre chaque cuisson. La texture doit être légère et les grains bien séparés."
   }
 ]
