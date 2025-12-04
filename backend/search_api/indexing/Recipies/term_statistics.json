@@ -1,0 +1,129 @@
+{
+  "total_unique_terms": 1154,
+  "top_20_terms": [
+    {
+      "term": "oil",
+      "count": 230
+    },
+    {
+      "term": "g",
+      "count": 228
+    },
+    {
+      "term": "add",
+      "count": 216
+    },
+    {
+      "term": "water",
+      "count": 208
+    },
+    {
+      "term": "salt",
+      "count": 182
+    },
+    {
+      "term": "oliv",
+      "count": 162
+    },
+    {
+      "term": "minut",
+      "count": 155
+    },
+    {
+      "term": "chop",
+      "count": 131
+    },
+    {
+      "term": "let",
+      "count": 127
+    },
+    {
+      "term": "pepper",
+      "count": 127
+    },
+    {
+      "term": "tsp",
+      "count": 126
+    },
+    {
+      "term": "ground",
+      "count": 126
+    },
+    {
+      "term": "onion",
+      "count": 121
+    },
+    {
+      "term": "butter",
+      "count": 119
+    },
+    {
+      "term": "tomato",
+      "count": 114
+    },
+    {
+      "term": "mix",
+      "count": 97
+    },
+    {
+      "term": "garlic",
+      "count": 96
+    },
+    {
+      "term": "serve",
+      "count": 91
+    },
+    {
+      "term": "teaspoon",
+      "count": 91
+    },
+    {
+      "term": "cumin",
+      "count": 91
+    }
+  ],
+  "top_10_ingredients": [
+    {
+      "term": "g",
+      "count": 224
+    },
+    {
+      "term": "tsp",
+      "count": 122
+    },
+    {
+      "term": "oil",
+      "count": 106
+    },
+    {
+      "term": "ground",
+      "count": 104
+    },
+    {
+      "term": "salt",
+      "count": 95
+    },
+    {
+      "term": "teaspoon",
+      "count": 89
+    },
+    {
+      "term": "tbsp",
+      "count": 83
+    },
+    {
+      "term": "water",
+      "count": 78
+    },
+    {
+      "term": "oliv",
+      "count": 78
+    },
+    {
+      "term": "option",
+      "count": 72
+    }
+  ],
+  "average_tokens_per_recipe": 120.54901960784314,
+  "malformed_files": []
+}
