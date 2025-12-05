@@ -4,6 +4,9 @@ Django settings for backend project.
 
 from pathlib import Path
 import os
+import dotenv
+
+dotenv.load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,3 +83,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Gemini API Key
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+CORS_ALLOW_ALL_ORIGINS = True
