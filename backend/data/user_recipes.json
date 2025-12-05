@@ -1,0 +1,19 @@
+[
+  {
+    "id": "user_1764900472_e2f770cc",
+    "title": "tagine",
+    "description": "ww",
+    "ingredients": [
+      "rose ing"
+    ],
+    "steps": [
+      "ing"
+    ],
+    "image": null,
+    "author": {
+      "name": "chef hassan"
+    },
+    "created_at": "2025-12-05 03:07:52",
+    "user_created": true
+  }
+]

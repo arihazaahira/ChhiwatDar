@@ -1,29 +1,59 @@
+// Navbar.js
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import './Navbar.css';
 
-const Navbar = ({ onNavClick }) => {
-  const handleNavClick = (sectionId) => {
-    const section = document.querySelector(sectionId);
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    if (onNavClick) onNavClick(sectionId);
-  };
+const Navbar = () => {
+    const navigate = useNavigate();
 
-  return (
-    <header>
-      <nav>
-        <a href="#accueil" onClick={(e) => { e.preventDefault(); handleNavClick('.hero-section'); }}>
-          Accueil
-        </a>
-        <a href="#recettes" onClick={(e) => { e.preventDefault(); handleNavClick('#recettes'); }}>
-          Mes Recettes
-        </a>
-        <a href="#apropos" onClick={(e) => { e.preventDefault(); handleNavClick('#apropos'); }}>
-          À Propos
-        </a>
-      </nav>
-    </header>
-  );
+    const scrollToSection = (sectionId) => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+
+    return (
+        <nav className="navbar">
+            <div className="nav-container">
+                <div className="nav-left">
+                    <span 
+                        className="nav-logo"
+                        onClick={() => navigate('/')}
+                    >
+                     
+                    </span>
+                </div>
+
+                <div className="nav-center">
+                    <a 
+                        className="nav-link" 
+                        onClick={() => scrollToSection('recettes')}
+                    >
+                        Recettes
+                    </a>
+                    <a 
+                        className="nav-link" 
+                        onClick={() => scrollToSection('about')}
+                    >
+                        À Propos
+                    </a>
+                    <a 
+                        className="nav-link" 
+                        onClick={() => scrollToSection('contact')}
+                    >
+                        Contact
+                    </a>
+                    <a 
+                        className="nav-link" 
+                        onClick={() => navigate('/create-recipe')}
+                    >
+                        Créer ma recette
+                    </a>
+                </div>
+            </div>
+        </nav>
+    );
 };
 
 export default Navbar;
