@@ -1,0 +1,29 @@
+{
+  "name": "Chicken with Olives and Lemon (Stew)",
+  "image": "images/poulet.jpeg",
+  "ingredients": [
+    "chicken (pieces)",
+    "green olives",
+    "lemon (or preserved lemons)",
+    "onions",
+    "garlic",
+    "ginger",
+    "saffron",
+    "olive oil",
+    "salt",
+    "pepper"
+  ],
+  "steps": [
+    "Brown chicken pieces in olive oil until lightly golden.",
+    "Add onions and garlic, sauté until soft.",
+    "Add ginger, saffron, salt and pepper, stir well.",
+    "Add olives and lemon (or preserved lemons).",
+    "Cover and simmer on low heat for about 60 minutes, until the chicken is tender and the sauce has reduced.",
+    "Adjust seasoning before serving."
+  ],
+  "prepTime": "PT15M",
+  "cookTime": "PT60M",
+  "totalTime": "PT75M",
+  "recipeYield": 4,
+  "description": "Savory chicken stew with olives and lemon — a comforting Moroccan dish."
+}

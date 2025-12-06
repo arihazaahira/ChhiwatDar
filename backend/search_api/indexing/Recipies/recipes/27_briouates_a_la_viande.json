@@ -1,0 +1,28 @@
+{
+  "name": "Meat Briouates",
+  "image": "../images/meat_briouates.png",
+  "ingredients": [
+    "30 Brik pastry sheets",
+    "1 Kg of minced meat",
+    "10 Eggs (for the filling)",
+    "2 Finely chopped onions",
+    "1 Finely chopped bouquet garni (coriander, parsley)",
+    "1 tsp ground cinnamon",
+    "3 tbsp oil",
+    "Salt, Pepper",
+    "Oil for frying",
+    "1 beaten egg (for sealing)"
+  ],
+  "steps": [
+    "In a pan, sauté the chopped onion in oil. Add the minced meat, the bouquet garni (coriander and parsley), salt, pepper, and cinnamon.",
+    "Cook until the meat is browned and the liquid has evaporated.",
+    "Add the beaten eggs to the meat. Mix until the eggs are cooked and well combined with the meat (the filling should be dry). Let it cool.",
+    "Cut the brik pastry sheets in half or into strips (depending on the desired shape: triangle or roll).",
+    "Place a spoonful of filling at one end and fold into a triangle or roll.",
+    "Seal using a brush dipped in the beaten egg.",
+    "Heat the oil in a fryer. Fry the briouates on both sides until golden. Drain and serve hot."
+  ],
+  "references": [
+    "https://www.la-cuisine-marocaine.com/recettes/entrees-chaudes-1.html"
+  ]
+}

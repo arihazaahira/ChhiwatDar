@@ -1,0 +1,29 @@
+{
+  "name": "Vegetable Couscous with Lamb",
+  "image": "images/couscous.jpeg",
+  "ingredients": [
+    "couscous semolina",
+    "lamb (or chicken) pieces",
+    "carrots",
+    "zucchinis",
+    "turnips",
+    "chickpeas",
+    "onions",
+    "garlic",
+    "spices (ras el-hanout / turmeric / ginger / cumin / salt / pepper)",
+    "olive oil",
+    "water or broth"
+  ],
+  "steps": [
+    "Peel and cut carrots and turnips; cut zucchinis and carrots into chunks.",
+    "In a pot, sauté the lamb (or chicken) pieces with olive oil, onions and garlic until browned.",
+    "Add the vegetables, chickpeas, spices, and cover with water or broth; simmer until meat and vegetables are tender.",
+    "Prepare the couscous according to package instructions (steaming or rehydration).",
+    "Serve the couscous topped with the vegetable-and-meat stew, and ladle over some of the broth."
+  ],
+  "prepTime": "PT20M",
+  "cookTime": "PT60M",
+  "totalTime": "PT80M",
+  "recipeYield": 4,
+  "description": "Traditional Moroccan couscous with vegetables and meat – hearty and comforting."
+}

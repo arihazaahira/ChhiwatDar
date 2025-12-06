@@ -1,0 +1,26 @@
+{
+  "name": "cheese briouates",
+  "image": "../images/cheese_briouates.jpg",
+  "ingredients": [
+    "6 sheets of brick pastry",
+    "200 g of fresh goat cheese",
+    "0.5 bunch of flat-leaf parsley (chopped)",
+    "0.5 bunch of fresh coriander (chopped)",
+    "0.5 bunch of fresh mint (chopped)",
+    "1 piece of preserved lemon (cut into small cubes)",
+    "3 g of cumin seeds (ground)",
+    "3 g of ginger powder",
+    "20 cl of olive oil (for the filling/cooking)"
+  ],
+  "steps": [
+    "Prepare the filling: Roughly chop the herbs (parsley, coriander, mint). Add the olive oil, the preserved lemon cut into small cubes, the cumin, and the ginger. Mix with the goat cheese.",
+    "Making the briouates: Cut each sheet of brick pastry into 3 strips of 5 cm width. Trim one end into a square and the other into a slant.",
+    "Lay out a strip of pastry. Place the filling near the edge, on the square end.",
+    "Fold into a triangle by alternately folding the corners (like a flag) until the strip is used up.",
+    "To seal, tuck the pointed end into a fold of the pastry.",
+    "Brown in a hot pan with a drizzle of olive oil (1 min on each side) or bake in the oven at 200 °C (4 min)."
+  ],
+  "references": [
+    "https://www.atelierdeschefs.fr/recettes/17747/briouate-au-fromage-de-chevre-et-herbes-sautees-au-citron-confit/"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "Moroccan Mint Tea",
+  "image": "../images/moroccan_mint_tea.jpg",
+  "ingredients": [
+    "Two teaspoons of Gunpowder green tea",
+    "4 to 6 sugar cubes (or more/less, to taste)",
+    "1 large bunch of fresh mint",
+    "Orange blossom water (optional)",
+    "1 bunch of wormwood (optional)",
+    "Boiling water"
+  ],
+  "steps": [
+    "Bring the water to a boil (or simmer at 70-80°C).",
+    "Place the green tea at the bottom of a teapot, and rinse it by sprinkling it with boiling water. Discard this water (this step 'cleans' the tea).",
+    "Add the fresh mint (and wormwood, if used), then the sugar. Cover with boiling water.",
+    "Let it steep for 1 to 2 minutes. Pour the tea into a glass, then pour the contents of the glass back into the teapot. Repeat this operation several times to mix well and 'break' the tea.",
+    "Enjoy when the infusion takes on a beautiful golden color, serving from a height to aerate."
+  ],
+  "references": [
+    "https://chabiothe.fr/content/67-the-vert-menthe-la-recette-traditionnelle"
+  ]
+}

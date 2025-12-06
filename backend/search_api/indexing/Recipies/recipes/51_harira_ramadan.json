@@ -1,0 +1,32 @@
+{
+  "name": "ramadan harira",
+  "image": "../images/moroccan_harira.jpg",
+  "ingredients": [
+    "200 g of lamb meat (or beef)",
+    "1 minced onion",
+    "1 bunch of chopped parsley",
+    "1 bunch of chopped coriander",
+    "7 tomatoes (peeled and chopped) or tomato paste",
+    "200 g of chickpeas (soaked and prepared)",
+    "200 g of lentils",
+    "100 g of vermicelli",
+    "2 L of water",
+    "A drizzle of olive oil",
+    "Spices: Turmeric, Ras el Hanout, Ginger, Salt, Pepper",
+    "Flour and water (for the 'tédouira')"
+  ],
+  "steps": [
+    "Cut the meat into small pieces. Finely mince the onion. Chop the parsley and coriander.",
+    "In a pot or pressure cooker, pour a drizzle of olive oil. Sauté the onion.",
+    "Add the parsley, meat, spices (turmeric, ras el hanout, ginger), salt, pepper, and pour half a glass of water. Let the meat brown.",
+    "Add the tomato pieces (or paste), chickpeas, and lentils (previously soaked).",
+    "Pour a drizzle of olive oil and 2 L of water. Cover and let cook on very low heat for 30 minutes (until the meat and chickpeas are cooked).",
+    "Prepare the tédouira: Mix the flour with water to obtain a liquid paste. Add it to the harira while stirring to avoid lumps (add in small quantities until the desired thickness is achieved).",
+    "After 30 minutes of cooking, add the vermicelli and the remaining coriander. Continue cooking for another 10 minutes.",
+    "Add a bit of chopped parsley again just before serving. Serve very hot, often with dates and lemon."
+  ],
+  "references": [
+    "https://ileauxepices.com/blog/2014/07/08/recette-harira-marocaine/wpid5106/",
+    "https://mafleurdoranger.com/article-recette-de-harira-soupe-traditionnelle-marocaine-118278234/"
+  ]
+}

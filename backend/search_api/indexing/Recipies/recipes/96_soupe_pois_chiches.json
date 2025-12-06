@@ -1,0 +1,33 @@
+{
+  "name": "chickpea soup",
+  "image": "../images/soupe_poids_chiche.png",
+  "ingredients": [
+    "1 jar of chickpeas (or 400 g of cooked canned chickpeas)",
+    "1 onion (sliced)",
+    "2 pieces of celery (washed and finely sliced)",
+    "1 tbsp olive oil",
+    "6 dl vegetable broth Spar (or 300 ml water + broth)",
+    "400 g canned peeled tomatoes with garlic (or 400 g diced tomatoes with their juice)",
+    "1 tsp ground cumin",
+    "1 tsp garlic powder (optional)",
+    "1 tsp mild curry powder (optional)",
+    "Handful of cilantro or flat-leaf parsley (chopped)",
+    "100 g frozen green beans (optional)",
+    "Juice and zest of 1/2 lemon (or just the juice)",
+    "Salt and freshly ground black pepper (to taste)"
+  ],
+  "steps": [
+    "Wash the celery and slice it finely. Peel the onion and slice it finely.",
+    "Rinse the chickpeas under cold water and drain them.",
+    "Heat the olive oil in a large pot. Sauté the onion and celery over low heat without letting them brown. (About 5-8 minutes).",
+    "Sprinkle with ground cumin (and garlic powder and curry if used) and let simmer a bit longer.",
+    "Increase the heat and add the vegetable broth (or water), tomatoes (diced or peeled), and chickpeas.",
+    "Season with freshly ground black pepper (and salt). Continue cooking for 8 minutes (or let simmer for 30 minutes if no green beans are added).",
+    "Add the green beans (if used) and the lemon juice. Let simmer for another 2 minutes.",
+    "Garnish the soup with fresh chopped herbs and lemon zest (if used). Serve hot."
+  ],
+  "references": [
+    "https://www.monspar.be/recettes/soupe-marocaine-aux-pois-chiches",
+    "https://julienutritionsimple.com/2019/12/07/soupe-marocaine-aux-pois-chiches-et-tomates/"
+  ]
+}

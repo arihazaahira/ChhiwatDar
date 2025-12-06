@@ -1,0 +1,34 @@
+{
+  "name": "Chicken Tagine with Preserved Lemons and Olives",
+  "image": "images/tagine.jpeg",
+  "ingredients": [
+    "chicken (pieces)",
+    "preserved lemons",
+    "olives",
+    "onions",
+    "garlic",
+    "ginger",
+    "saffron",
+    "olive oil",
+    "salt",
+    "pepper"
+  ],
+  "steps": [
+    "Slice the onions and mince the garlic.",
+    "In a tagine or heavy pot, brown the chicken pieces in olive oil until lightly golden.",
+    "Add the onions and garlic, sauté until soft and translucent.",
+    "Add ginger, saffron, salt and pepper, stir well.",
+    "Add the preserved lemon quarters and olives.",
+    "Cover and simmer on low heat for about 60–90 minutes, until the chicken is tender.",
+    "Adjust seasoning if needed and serve hot."
+  ],
+  "prep_time": "15 min",
+  "cook_time": "90 min",
+  "total_time": "105 min",
+  "servings": 4,
+  "description": "A classic Moroccan chicken tagine slow-cooked with preserved lemons and olives.",
+  "references": [
+    "https://themoroccantravel.com/la-gastronomie-traditionnelle-marocaine-entre-histoire-saveurs-et-hospitalite/",
+    "https://chefahmedabargh.com/2024/09/08/les-tajines-marocains-histoire-et-regions/"
+  ]
+}

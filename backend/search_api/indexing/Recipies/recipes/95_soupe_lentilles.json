@@ -1,0 +1,43 @@
+{
+  "name": "lentil soup",
+  "image": "../images/soupe_lentilles.png",
+  "ingredients": [
+    "200 g of red lentils (or 250 g of dry lentils)",
+    "300 g of onions (halved)",
+    "50 g of olive oil (or a drizzle)",
+    "2 tsp of ground ginger",
+    "2 tsp of ground coriander",
+    "2 tsp of ground cumin (or 1 tsp)",
+    "2 tsp of ground paprika (or 1 tsp)",
+    "½ tsp of ground white pepper (adjust to taste)",
+    "1 tsp of ground cinnamon",
+    "1 tsp of ground turmeric",
+    "½ tsp of ground cayenne pepper (optional)",
+    "½ tsp of freshly grated nutmeg (optional)",
+    "1500 g of water (or 1 liter)",
+    "4 vegetable stock cubes (or vegetable broth)",
+    "1600 g of canned tomato purée (or crushed tomatoes)",
+    "Salt (adjust to taste)",
+    "4 - 5 sprigs of fresh coriander (stemmed, for garnish)",
+    "4 cloves of garlic (minced) (if no onions are used)",
+    "2 sprigs of thyme (optional)",
+    "1 bay leaf (optional)",
+    "1 small whole hot chili (optional)",
+    "1 tsp of Moroccan Ras el Hanout (optional)",
+    "1/2 tsp of ground caraway (optional)"
+  ],
+  "steps": [
+    "Peel and mince the onions (or garlic if used).",
+    "In a large pot or Dutch oven, heat the olive oil. Sauté the onion (or garlic and spices as per the recipe) until translucent (4 min at 100°C/speed 1 in a Thermomix).",
+    "Add the spices (ginger, coriander, cumin, paprika, pepper, cinnamon, turmeric, etc.) and sauté for a few minutes to release the flavors.",
+    "Add the water, stock cubes, rinsed and drained lentils, and tomato purée (or crushed tomatoes).",
+    "Bring to a boil, then simmer over low heat for about 30 minutes, or until the lentils are tender.",
+    "If you pre-blanched the lentils, drain them after 2 minutes of cooking and add them to the pot with the water and the rest of the ingredients.",
+    "Season with salt and pepper to taste.",
+    "Serve hot, garnished with chopped fresh coriander."
+  ],
+  "references": [
+    "https://cookidoo.fr/recipes/recipe/fr-FR/r586215",
+    "https://ileauxepices.com/blog/2017/02/28/recette-soupe-de-lentilles-a-lorientale/wpid12430/"
+  ]
+}

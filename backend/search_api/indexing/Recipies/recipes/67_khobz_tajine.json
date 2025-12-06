@@ -1,0 +1,23 @@
+{
+  "name": "tajine bread",
+  "image": "../images/khobz.png",
+  "ingredients": [
+    "500 g of flour",
+    "2 tbsp of oil",
+    "1 tbsp of baker's yeast dissolved in a little warm water with 1 tbsp of powdered sugar",
+    "1 and a half tsp of salt",
+    "Warm water (to bring the dough together)",
+    "A little semolina (to coat the dough)"
+  ],
+  "steps": [
+    "In a mixing bowl, thoroughly mix the flour, oil, dissolved yeast, salt, and warm water (add water gradually) until you get a smooth and soft dough. Knead vigorously.",
+    "Cover the dough and place it in a warm spot to rise (it should double in size).",
+    "Deflate the dough. Divide it into portions. Shape them into balls and coat them with fine semolina (if desired).",
+    "Flatten the balls to form discs 1 to 2 cm thick. Let them rise again under a cloth for about 15 minutes.",
+    "Heat your tajine (earthenware cooking dish) or a heavy-bottomed pan over medium heat.",
+    "Cook the discs for 5 minutes on each side until they are golden brown and cooked through. Enjoy warm."
+  ],
+  "references": [
+    "https://www.lesfoodies.com/oumhalima/recette/khobz-matlo3-pain-maison-cuit-sur-tajine-ou-poellle-fond-epais"
+  ]
+}

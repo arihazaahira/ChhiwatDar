@@ -1,0 +1,32 @@
+{
+  "name": "Rfissa with chicken",
+  "image": "../images/moroccan_rfissa.jpg",
+  "ingredients": [
+    "4 chicken thighs",
+    "200 g of onions, quartered",
+    "100 g of dried green lentils",
+    "4 m'semen (cooked puff pastry)",
+    "2 tbsp of ras el-hanout",
+    "1 tbsp of ground turmeric",
+    "1 tsp of ground ginger",
+    "1 tbsp of paprika",
+    "1/2 tbsp of ground cinnamon",
+    "4 tbsp of olive oil",
+    "800 g of water",
+    "Salt",
+    "Ground pepper",
+    "10 sprigs of fresh coriander"
+  ],
+  "steps": [
+    "Sear the chicken for 5 minutes in a pan with 2 tbsp of olive oil until golden brown. Deglaze the pan with 200 g of water and set aside.",
+    "In a pot, chop the onions. Add the ras el-hanout, turmeric, paprika, ginger, cinnamon, and 2 tbsp of olive oil. Sauté for 5 minutes.",
+    "Add the chicken (in a steamer basket or directly in the pot), salt, the remaining water (600 g), and the deglazing liquid. Cook for 20 minutes.",
+    "Add the lentils (previously soaked) and cook for an additional 10 minutes.",
+    "Cut the m'semen into strips (called 'tride').",
+    "Place the m'semen strips (tride) on the serving dish. Arrange the lentils and chicken on top.",
+    "Generously drizzle with the cooking juice. Season with salt and pepper, sprinkle with coriander, and serve very hot."
+  ],
+  "references": [
+    "https://cookidoo.fr/recipes/recipe/fr-FR/r907210"
+  ]
+}

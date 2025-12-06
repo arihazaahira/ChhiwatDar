@@ -1,0 +1,32 @@
+{
+  "name": "olive tagine",
+  "image": "../images/olive_tagine.png",
+  "ingredients": [
+    "1 large free-range chicken cut into pieces (or thighs)",
+    "150 g of green or pink pitted olives",
+    "1 preserved lemon in salt",
+    "2 medium white onions",
+    "2 garlic cloves",
+    "1 tbsp of ras el hanout",
+    "1 large pinch of saffron threads",
+    "1 tsp of coarse salt",
+    "1 small bunch of cilantro",
+    "4 sprigs of flat-leaf parsley",
+    "2 tbsp of olive oil",
+    "40 g of butter",
+    "Fresh ginger (grated)",
+    "About 20 cl of water or chicken broth",
+    "Potatoes (optional)"
+  ],
+  "steps": [
+    "Prepare the marinade: Chop the cilantro, parsley, and the preserved lemon peel. In a bowl, add the chicken with olive oil, ras el hanout, turmeric, chopped herbs, preserved lemon, and pepper. Let marinate.",
+    "In a pot or sauté pan, heat olive oil and butter. Brown the chicken pieces. Remove them.",
+    "Add the chopped onions and garlic, crushed saffron, and ras el hanout. Let the onions soften for 10 minutes.",
+    "Add the chicken pieces, pour in the broth or water (up to halfway), and add the ginger. Cover and simmer for 45 minutes.",
+    "Add the olives (and potatoes if used) and the preserved lemon cut into cubes. Continue cooking for 30 minutes covered.",
+    "Serve hot, garnished with the remaining cilantro leaves."
+  ],
+  "references": [
+    "https://lescommis.com/recettes/tajine-de-poulet-aux-olives-et-citron-confit/"
+  ]
+}

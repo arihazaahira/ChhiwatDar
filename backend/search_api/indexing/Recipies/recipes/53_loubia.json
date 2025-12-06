@@ -1,0 +1,25 @@
+{
+  "name": "loubia",
+  "image": "../images/loubia.jpg",
+  "ingredients": [
+    "250g of dried white beans (soaked)",
+    "2 large tomatoes (peeled and chopped into small pieces)",
+    "4 garlic cloves (grated)",
+    "1 tablespoon of chopped parsley and coriander",
+    "3 tablespoons of tomato paste",
+    "2 large glasses of water",
+    "A drizzle of olive oil",
+    "Spices: 1/2 tsp turmeric, 1/2 tsp cumin, a pinch of pepper, salt"
+  ],
+  "steps": [
+    "Soak the white beans overnight. Drain them.",
+    "In a pressure cooker or a pot, drizzle some olive oil. Add the tomatoes, grated garlic, chopped parsley/coriander, salt, pepper, turmeric, and cumin. Mix well.",
+    "Add the tomato paste and mix.",
+    "Then add the drained white beans and the 2 large glasses of water. Mix again.",
+    "Close the pressure cooker (if using). Bring to a boil, then lower to medium heat and cook for 25 minutes (in a pressure cooker) or until the beans are tender (in a pot, about 1.5 hours, adding water if necessary).",
+    "Serve immediately with bread."
+  ],
+  "references": [
+    "https://www.cuisinonsencouleurs.fr/2018/10/loubia-les-haricots-blancs-a-la-marocaine.html"
+  ]
+}

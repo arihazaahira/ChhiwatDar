@@ -1,0 +1,32 @@
+{
+  "name": "chicken couscous",
+  "image": "../images/chicken_couscous.png",
+  "ingredients": [
+    "1 whole chicken or chicken thighs with hips",
+    "800 g of medium couscous semolina",
+    "500 g of squash",
+    "6 carrots",
+    "4 zucchinis",
+    "1 large onion",
+    "1 grated tomato",
+    "1/2 white cabbage",
+    "1 turnip",
+    "1 celery stalk",
+    "1 glass jar of precooked chickpeas",
+    "1 small can of tomato paste",
+    "1 bunch of cilantro",
+    "Olive oil",
+    "Spices: 1 tsp paprika, 2 tsp cumin or Ras el Hanout, 1 tbsp ground ginger, 2 tsp turmeric, salt and pepper"
+  ],
+  "steps": [
+    "In the bottom pot of the couscoussier, brown the chicken in olive oil. Remove the chicken and set aside.",
+    "Sauté the chopped onion. Add the chicken, cumin, ginger, paprika, celery, turmeric, and 2 liters of water. Cook for about 20 minutes.",
+    "Add the hard vegetables (carrots, turnip) and the tomato paste. Continue cooking.",
+    "Steam the couscous semolina (in the top of the couscoussier, in 3 batches, with sprinkling and fluffing between each cooking). Add smen (fermented butter) at the end of the semolina cooking.",
+    "Add the zucchinis, squash, cabbage, and chickpeas to the broth. Finish cooking the vegetables.",
+    "Arrange the couscous in a dome shape. Place the chicken and vegetables on top. Drizzle with broth (also served on the side). Garnish with cilantro."
+  ],
+  "references": [
+    "https://chefsimon.com/gourmets/chef-papounet/recettes/couscous-marocain-au-poulet-et-legumes"
+  ]
+}

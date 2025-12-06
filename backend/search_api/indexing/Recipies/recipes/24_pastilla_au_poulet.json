@@ -1,0 +1,30 @@
+{
+  "name": "chicken pastilla",
+  "image": "../images/chicken_pastilla.jpg",
+  "ingredients": [
+    "4 chicken thighs of 240g each",
+    "10 sheets of brick pastry",
+    "75g of semi-salted butter (melted)",
+    "1 large onion, sliced",
+    "1 bunch of chopped coriander",
+    "Spices: Ginger, cinnamon, ras el hanout, turmeric (quantities unspecified)",
+    "Powdered sugar (for the sauce: quantities unspecified)",
+    "Water",
+    "3 eggs (beaten into an omelette)",
+    "250g of blanched and crushed almonds (for a medium-sized whole pastilla)",
+    "Salt, pepper"
+  ],
+  "steps": [
+    "Slice the onions. Sauté them in a pot with the spices and sugar. Add the chicken thighs and brown them. Season with salt and pepper.",
+    "Add the chopped coriander and pour water to cover the poultry. Cover and simmer for 40 minutes until the meat falls off the bones.",
+    "Remove the meat. Shred the meat and set it aside. Let the sauce reduce in the pot.",
+    "When the sauce is well reduced, whisk the eggs and slowly add them to the sauce over low heat, whisking to obtain a creamy sauce. Let cool.",
+    "Toast the blanched almonds in oil or in the oven. Crush them.",
+    "Assembly: Butter the mold. Generously butter 6 sheets of brick pastry and place them so they hang over the edges of the mold. Fill with the egg mixture, shredded chicken, and crushed almonds. Fold the edges over.",
+    "Butter the remaining 4 sheets and place them on top of the filling to wrap everything. Brush with butter.",
+    "Bake at 180°C for 40 minutes until the brick pastry sheets are golden brown."
+  ],
+  "references": [
+    "https://www.carredeboeuf.com/cuisine-du-monde/1964-recette-de-pastilla-de-poulet-aux-amandes.html"
+  ]
+}
