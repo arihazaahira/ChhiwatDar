@@ -556,6 +556,7 @@ python manage.py runserver
 pip install django
 pip install djangorestframework
 pip install google-genai
+pip install dotenv
 ```
 
 ---
@@ -565,6 +566,28 @@ pip install google-genai
 ### 1. Variable d'Environnement pour la Clé API
 
 ```python
+# .env 
+mettez vous votre api dans .env apres l'appeler pour utiliser
+premierement dans *setting.py* puis importer sur les veiws 
+que utiliser
+    #settings.py
+import dotenv
+
+dotenv.load_dotenv()
+
+# Gemini API Key
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+    #views 
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+    # Client Gemini
+        client = genai.Client(api_key=settings.GEMINI_API_KEY)
+
+
 # darija.py - Remplacer la clé hardcodée
 import os
 
