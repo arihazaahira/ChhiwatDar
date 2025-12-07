@@ -5,6 +5,7 @@ CORRECTION FINALE: Suppression des doublons et ordre correct des routes
 
 from django.urls import path
 from . import views
+from .voice_search.speech_to_text import transcribe
 
 urlpatterns = [
     # Liste de toutes les recettes
