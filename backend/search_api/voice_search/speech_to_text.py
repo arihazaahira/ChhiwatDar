@@ -1,13 +1,22 @@
+"""
+Module de transcription audio avec Gemini API (nouvelle syntaxe Client)
+Utilise gemini-2.5-flash (modèle qui fonctionne avec google-genai)
+"""
+
 from django.http import JsonResponse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from google import genai
+from google.genai import types
 import tempfile
 import os
 import time
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# ✅ MODÈLE CORRECT pour l'API google-genai
+MODEL_NAME = "gemini-2.5-flash"
 
 def parse_response(text):
     """Parse la réponse formatée de Gemini"""
@@ -20,7 +29,7 @@ def parse_response(text):
         line = line.strip()
         if line.upper().startswith("TRANSCRIPTION:"):
             transcription = line.split(":", 1)[1].strip()
-        elif line.upper().startswith("TRANSLATION:"):
+        elif line.upper().startswith("TRANSLATION:") or line.upper().startswith("TRADUCTION:"):
             translation = line.split(":", 1)[1].strip()
     
     # Si le format n'est pas respecté, retourner le texte brut
@@ -31,6 +40,10 @@ def parse_response(text):
 
 @csrf_exempt
 def transcribe(request):
+    """
+    Transcrit un fichier audio avec Gemini Client API
+    Darija → alphabet latin + traduction ANGLAIS
+    """
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=400)
 
@@ -48,55 +61,65 @@ def transcribe(request):
             temp.write(chunk)
         temp_path = temp.name
 
-    gemini_file = None
+    uploaded_file = None
+    client = None
     
     try:
-        # Client Gemini
+        # ✅ NOUVELLE SYNTAXE : Client API (comme speachV2.py)
         client = genai.Client(api_key=settings.GEMINI_API_KEY)
-
-        # Upload vers Gemini
-        gemini_file = client.files.upload(file=temp_path)
         
-        # Attendre que le fichier soit ACTIVE (polling amélioré)
+        # Upload du fichier via client.files.upload()
+        print(f"📤 Upload du fichier: {temp_path}")
+        uploaded_file = client.files.upload(file=temp_path)
+        print(f"✅ Fichier uploadé: {uploaded_file.name}")
+        
+        # Attendre que le fichier soit ACTIVE
         max_wait_time = 120  # 2 minutes max
         poll_interval = 2
         elapsed = 0
         
         while elapsed < max_wait_time:
-            # Récupérer l'état actuel du fichier
-            file_info = client.files.get(name=gemini_file.name)
-            state_name = file_info.state.name if hasattr(file_info.state, 'name') else str(file_info.state)
+            file_info = client.files.get(name=uploaded_file.name)
             
-            if state_name == "ACTIVE":
-                # Fichier prêt, on peut continuer
-                gemini_file = file_info  # Mettre à jour avec les infos actuelles
+            if file_info.state == "ACTIVE":
+                print(f"✅ Fichier ACTIVE")
                 break
-            elif state_name == "FAILED":
-                return JsonResponse({"error": "Le traitement du fichier a échoué côté Gemini"}, status=500)
+            elif file_info.state == "FAILED":
+                return JsonResponse({
+                    "error": "Le traitement du fichier a échoué côté Gemini",
+                    "success": False
+                }, status=500)
             
-            # Attendre avant de re-vérifier
+            print(f"⏳ État: {file_info.state}, attente...")
             time.sleep(poll_interval)
             elapsed += poll_interval
         
         if elapsed >= max_wait_time:
-            return JsonResponse({"error": "Timeout: le fichier n'a pas pu être traité"}, status=504)
+            return JsonResponse({
+                "error": "Timeout: le fichier n'a pas pu être traité",
+                "success": False
+            }, status=504)
 
-        # Prompt intelligent avec traduction
+        # ✅ PROMPT MODIFIÉ : Traduction vers ANGLAIS pour Darija
         prompt = """Tu es un système de transcription et traduction intelligent.
 
 1. Si la langue détectée est l'anglais :
    → transcris normalement en anglais.
-   → pas de traduction nécessaire.
+   → pas de traduction nécessaire (réponds "N/A" pour TRANSLATION).
 
 2. Si la langue détectée est la darija marocaine :
    → transcris en alphabet latin (lettres françaises).
      Utilise: 3 pour ع, 7 pour ح, 9 pour ق, ch pour ش, gh pour غ, kh pour خ
      Exemple : "salam 3likom", "kifach nta", "chokran bzaf"
-   → PUIS traduis en anglais.
+   → PUIS traduis en ANGLAIS.
 
-3. Sinon (autre langue) :
+3. Si la langue détectée est le français :
+   → transcris normalement en français.
+   → traduis en ANGLAIS.
+
+4. Sinon (autre langue) :
    → transcris dans la langue détectée.
-   → traduis en anglais si ce n'est pas déjà en anglais.
+   → traduis en ANGLAIS.
 
 FORMAT DE RÉPONSE (respecte exactement ce format):
 TRANSCRIPTION: [le texte transcrit]
@@ -108,63 +131,81 @@ TRANSLATION: Hello, how are you?
 
 Exemple pour anglais:
 TRANSCRIPTION: Hello, how are you?
-TRANSLATION: N/A"""
+TRANSLATION: N/A
 
-        # Essayer plusieurs modèles si nécessaire
-        models = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
-        last_error = None
+Exemple pour français:
+TRANSCRIPTION: Bonjour, comment allez-vous?
+TRANSLATION: Hello, how are you?"""
+
+        # ✅ CORRECTION : Utiliser la même syntaxe que speachV2.py
+        print(f"🎙️ Transcription en cours avec {MODEL_NAME}...")
         
-        for model_name in models:
-            try:
-                response = client.models.generate_content(
-                    model=model_name,
-                    contents=[prompt, gemini_file]
-                )
-                
-                # Parser la réponse
-                result_text = response.text.strip()
-                transcription, translation = parse_response(result_text)
-                
-                response_data = {
-                    "transcription": transcription,
-                    "model": model_name
-                }
-                
-                # Ajouter la traduction si disponible
-                if translation and translation.upper() != "N/A":
-                    response_data["translation"] = translation
-                
-                return JsonResponse(response_data)
-                
-            except Exception as model_error:
-                last_error = model_error
-                error_str = str(model_error).lower()
-                
-                # Si c'est une erreur de modèle non disponible, essayer le suivant
-                if '404' in error_str or 'not found' in error_str:
-                    continue
-                
-                # Si c'est une autre erreur, attendre et réessayer
-                time.sleep(1)
-                continue
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=[prompt, uploaded_file],
+            config=types.GenerateContentConfig(
+                response_modalities=['TEXT']
+            )
+        )
         
-        # Si tous les modèles ont échoué
-        return JsonResponse({"error": f"Erreur transcription: {str(last_error)}"}, status=500)
+        # Parser la réponse
+        result_text = response.text.strip()
+        print("="*60)
+        print(result_text)
+        print("="*60)
+        
+        transcription, translation = parse_response(result_text)
+        
+        response_data = {
+            "transcription": transcription,
+            "model": MODEL_NAME,
+            "success": True
+        }
+        
+        # Ajouter la traduction si disponible
+        if translation and translation.upper() != "N/A":
+            response_data["translation"] = translation
+        
+        return JsonResponse(response_data)
 
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
+        error_msg = str(e)
+        print(f"❌ Erreur: {error_msg}")
+        
+        # Message d'erreur plus clair pour le quota
+        if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
+            return JsonResponse({
+                "error": "Quota API dépassé. Veuillez réessayer dans quelques minutes.",
+                "details": "Le modèle Gemini a atteint sa limite. Réessayez plus tard.",
+                "success": False
+            }, status=429)
+        
+        # Message d'erreur pour modèle non trouvé
+        if "404" in error_msg or "NOT_FOUND" in error_msg:
+            return JsonResponse({
+                "error": "Modèle non disponible.",
+                "details": f"Le modèle {MODEL_NAME} n'est pas accessible. Vérifiez votre API key.",
+                "success": False
+            }, status=404)
+        
+        return JsonResponse({
+            "error": f"Erreur: {error_msg}",
+            "success": False
+        }, status=500)
     
     finally:
         # Nettoyage du fichier temporaire local
         if os.path.exists(temp_path):
             try:
                 os.remove(temp_path)
-            except:
-                pass
+                print(f"🗑️ Fichier local supprimé")
+            except Exception as e:
+                print(f"⚠️ Erreur suppression locale: {e}")
         
         # Nettoyage du fichier sur Gemini
-        if gemini_file:
+        if uploaded_file and client:
             try:
-                client.files.delete(name=gemini_file.name)
-            except:
-                pass
+                client.files.delete(name=uploaded_file.name)
+                print(f"🗑️ Fichier Gemini supprimé")
+            except Exception as e:
+                print(f"⚠️ Erreur suppression Gemini: {e}")

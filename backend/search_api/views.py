@@ -14,9 +14,9 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from google import genai
-from google.genai import types
+import google.generativeai as genai
 from PIL import Image
+from .voice_search.speech_to_text import transcribe
 
 
 # ============================================================
@@ -600,3 +600,71 @@ def get_user_recipes(request):
     """Récupère toutes les recettes utilisateur"""
     user_recipes = load_user_recipes()
     return JsonResponse({'success': True, 'recipes': user_recipes})
+
+@csrf_exempt
+def voice_search(request):
+    """
+    Endpoint pour la recherche vocale avec transcription Gemini puis recherche
+    """
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+    
+    # Appeler la fonction transcribe
+    transcription_response = transcribe(request)
+    
+    # Si erreur de transcription, retourner directement
+    if transcription_response.status_code != 200:
+        return transcription_response
+    
+    # Parser la réponse JSON de transcription
+    transcription_data = json.loads(transcription_response.content)
+    
+    # Vérifier le succès
+    if not transcription_data.get('success', False):
+        return transcription_response
+    
+    # Récupérer le texte transcrit (priorité à la traduction si disponible)
+    query = transcription_data.get('translation') or transcription_data.get('transcription', '')
+    
+    if not query or query.upper() == 'N/A':
+        query = transcription_data.get('transcription', '')
+    
+    if not query:
+        return JsonResponse({
+            "error": "Aucune transcription obtenue",
+            "success": False
+        }, status=400)
+    
+    # Charger les recettes
+    try:
+        recipes_data = load_recipes_data()
+    except Exception as e:
+        return JsonResponse({
+            'error': f'Erreur chargement recettes: {str(e)}',
+            'success': False
+        }, status=500)
+    
+    # Rechercher dans les recettes
+    query_lower = query.lower().strip()
+    results = []
+    
+    for recipe in recipes_data:
+        title_match = query_lower in recipe.get('title', '').lower()
+        description_match = query_lower in recipe.get('description', '').lower()
+        ingredients_match = any(
+            query_lower in str(ingredient).lower() 
+            for ingredient in recipe.get('ingredients', [])
+        )
+        
+        if title_match or description_match or ingredients_match:
+            results.append(recipe)
+    
+    return JsonResponse({
+        'success': True,
+        'transcription': transcription_data.get('transcription', ''),
+        'translation': transcription_data.get('translation'),
+        'query': query,
+        'results': results,
+        'count': len(results),
+        'model': transcription_data.get('model', 'unknown')
+    })
