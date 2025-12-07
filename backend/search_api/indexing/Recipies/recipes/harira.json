@@ -1,0 +1,29 @@
+{
+  "name": "Moroccan Harira Soup",
+  "image": "images/harira.jpeg",
+  "ingredients": [
+    "lentils",
+    "chickpeas",
+    "tomatoes (fresh or purée)",
+    "meat (lamb or beef; optional)",
+    "onions",
+    "garlic",
+    "fresh cilantro",
+    "fresh parsley",
+    "spices (ginger, turmeric, salt, pepper)",
+    "olive oil",
+    "water or broth"
+  ],
+  "steps": [
+    "Sauté onions and garlic in olive oil until soft and translucent.",
+    "If using meat, add it and brown it, then add tomatoes, lentils and chickpeas.",
+    "Cover with water or broth, season with spices, and simmer until legumes (and meat, if used) are tender.",
+    "Chop cilantro and parsley; add them toward the end of cooking for freshness.",
+    "Adjust seasoning and serve hot."
+  ],
+  "prepTime": "PT10M",
+  "cookTime": "PT45M",
+  "totalTime": "PT55M",
+  "recipeYield": 4,
+  "description": "Hearty and nourishing Moroccan soup — perfect for gatherings or Ramadan."
+}

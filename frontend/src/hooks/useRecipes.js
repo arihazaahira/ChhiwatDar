@@ -5,7 +5,7 @@ import recipeImages from '../assets/images';
 // Données par défaut avec les images locales
 const defaultRecipes = [
   {
-    id: 1,
+    id: "taginedepoulet",
     title: "Tajine de Poulet aux Citrons Confits",
     image: recipeImages.tajine,  // ← Image locale
     description: "Un plat marocain emblématique cuit lentement avec des citrons confits et des olives.",
@@ -14,7 +14,7 @@ const defaultRecipes = [
     difficulte: "Moyenne"
   },
   {
-    id: 2,
+    id: "couscous",
     title: "Couscous aux Légumes",
     image: recipeImages.couscous,  // ← Image locale
     description: "Le plat traditionnel du vendredi, avec de la semoule et des légumes frais.",
@@ -23,7 +23,7 @@ const defaultRecipes = [
     difficulte: "Facile"
   },
   {
-    id: 3,
+    id: "Bastila ",
     title: "Bastila au Poulet",
     image: recipeImages.bastila,  // ← Image locale
     description: "Feuilleté sucré-salé typique de la cuisine marocaine.",
@@ -32,7 +32,7 @@ const defaultRecipes = [
     difficulte: "Difficile"
   },
   {
-    id: 4,
+    id: "harira",
     title: "Harira Marocaine",
     image: recipeImages.harira,  // ← Image locale
     description: "Soupe traditionnelle pour le Ramadan, riche et nourrissante.",
@@ -41,7 +41,7 @@ const defaultRecipes = [
     difficulte: "Facile"
   },
   {
-    id: 5,
+    id: "batbout",
     title: "Batbout Maison",
     image: recipeImages.batbout,  // ← Image locale
     description: "Pain marocain moelleux cuit à la poêle.",
@@ -50,7 +50,7 @@ const defaultRecipes = [
     difficulte: "Facile"
   },
   {
-    id: 6,
+    id: "poulet",
     title: "Poulet aux Olives et Citron",
     image: recipeImages.poulet,  // ← Image locale
     description: "Poulet mijoté avec des olives vertes et du citron.",

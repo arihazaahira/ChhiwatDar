@@ -1,5 +1,6 @@
 """
-Views pour l'API de recherche de recettes marocaines
+Views pour l'API de recherche de recettes marocaines avec Inverted Index
+(Version finale avec correction du chemin d'accès aux fichiers et amélioration du filtrage des mots-clés)
 """
 
 import json
@@ -7,6 +8,9 @@ import os
 import time
 import uuid
 import traceback
+import re
+import unicodedata
+from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -16,351 +20,583 @@ from PIL import Image
 
 
 # ============================================================
-# CHARGEMENT DES DONNÉES
+# CONSTANTES ET CONFIGURATION
 # ============================================================
 
-def load_recipes_data():
-    """Charge les données des recettes depuis le fichier JSON"""
+# Chemins des fichiers
+# Remarque : BASE_DIR est le dossier 'image_search' dans votre architecture
+BASE_DIR = os.path.dirname(__file__) 
+RECIPES_JSON_PATH = os.path.join(BASE_DIR, '../data/recipes.json')
+USER_RECIPES_PATH = os.path.join(BASE_DIR, '../data/user_recipes.json')
+INVERTED_INDEX_PATHS = [
+    os.path.join(BASE_DIR, './indexing/Recipies/inverted_index.json'),
+]
+RECIPES_FOLDER_PATH = os.path.join(BASE_DIR, './indexing/Recipies/recipes')
+
+# Mots vides (stop words) étendus
+STOP_WORDS = {
+    # Articles et mots courants
+    'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 
+    'are', 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 
+    'both', 'but', 'by', 'can', 'cannot', 'could', 'did', 'do', 'does', 'doing', 'down', 
+    'during', 'each', 'few', 'for', 'from', 'further', 'had', 'has', 'have', 'having', 
+    'he', 'her', 'here', 'hers', 'herself', 'him', 'himself', 'his', 'how', 'i', 'if', 
+    'in', 'into', 'is', 'it', 'its', 'itself', 'just', 'me', 'more', 'most', 'my', 
+    'myself', 'no', 'nor', 'not', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 
+    'our', 'ours', 'ourselves', 'out', 'over', 'own', 'same', 'she', 'should', 'so', 
+    'some', 'such', 'than', 'that', 'the', 'their', 'theirs', 'them', 'themselves', 
+    'then', 'there', 'these', 'they', 'this', 'those', 'through', 'to', 'too', 'under', 
+    'until', 'up', 'very', 'was', 'we', 'were', 'what', 'when', 'where', 'which', 'while', 
+    'who', 'whom', 'why', 'will', 'with', 'would', 'you', 'your', 'yours', 'yourself', 
+    'yourselves',
+    
+    # Termes culinaires génériques
+    'recipe', 'recipes', 'dish', 'dishes', 'cook', 'cooking', 'cooked', 'cuisine', 
+    'food', 'ingredient', 'ingredients', 'preparation', 'prepare', 'prepared', 'preparing', 
+    'step', 'steps', 'method', 'instructions', 'serves', 'serving', 'servings', 'make', 
+    'makes', 'making', 'made', 'add', 'adding', 'added', 'adds', 'mix', 'mixing', 'mixed', 
+    'place', 'placing', 'placed', 'put', 'putting', 'heat', 'heating', 'heated', 'boil', 
+    'boiling', 'boiled', 'stir', 'stirring', 'stirred', 'pour', 'pouring', 'poured', 
+    'remove', 'removing', 'removed', 'cut', 'cutting', 'cuts', 'chop', 'chopping', 
+    'chopped', 'slice', 'slicing', 'sliced', 'bake', 'baking', 'baked', 'fry', 'frying', 
+    'fried', 'simmer', 'simmering', 'simmered', 'season', 'seasoning', 'seasoned', 'taste', 
+    'tasting', 'serve', 'served', 'let', 'allow', 'bring', 'take', 'use', 'using', 'used', 
+    'set', 'get', 'become',
+    
+    # Unités de mesure et temps
+    'minute', 'minutes', 'hour', 'hours', 'second', 'seconds', 'time', 'times', 'cup', 
+    'cups', 'tablespoon', 'tablespoons', 'teaspoon', 'teaspoons', 'tbsp', 'tsp', 'ounce', 
+    'ounces', 'oz', 'pound', 'pounds', 'lb', 'lbs', 'gram', 'grams', 'kilogram', 
+    'kilograms', 'kg', 'liter', 'liters', 'milliliter', 'milliliters', 'ml', 'piece', 
+    'pieces', 'pinch', 'dash', 'handful',
+    
+    # Nombres
+    'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 
+    'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 
+    'eighteen', 'nineteen', 'twenty', 'thirty', 'forty', 'fifty', 'hundred', 'thousand', 
+    'first', 'second', 'third', 'fourth', 'half', 'quarter',
+    
+    # Mots additionnels spécifiques
+    'style', 'traditional', 'dried', 'fruits', 'seeds'
+}
+
+
+# ============================================================
+# FONCTIONS UTILITAIRES
+# ============================================================
+
+def load_json_file(file_path):
+    """Charge un fichier JSON avec gestion des erreurs"""
     try:
-        file_path = os.path.join(os.path.dirname(__file__), '../data/recipes.json')
-        with open(file_path, 'r', encoding='utf-8') as file:
-            return json.load(file)
-    except FileNotFoundError:
-        print("❌ Fichier recipes.json introuvable")
-        return None
-    except json.JSONDecodeError as e:
-        print(f"❌ Erreur de parsing JSON: {e}")
-        return None
+        if os.path.exists(file_path):
+            with open(file_path, 'r', encoding='utf-8') as file:
+                return json.load(file)
+        return []
     except Exception as e:
-        print(f"❌ Erreur lors du chargement des recettes: {e}")
-        return None
+        print(f"❌ Erreur lors du chargement de {file_path}: {e}")
+        return []
+
+
+def load_recipes_data():
+    """Charge les données des recettes depuis le fichier JSON principal"""
+    return load_json_file(RECIPES_JSON_PATH)
 
 
 def load_user_recipes():
     """Charge les recettes créées par les utilisateurs"""
+    return load_json_file(USER_RECIPES_PATH)
+
+
+def load_inverted_index():
+    """Charge l'inverted index depuis le premier chemin disponible"""
+    for path in INVERTED_INDEX_PATHS:
+        abs_path = os.path.abspath(path)
+        if os.path.exists(abs_path):
+            print(f"🔍 Inverted index chargé depuis: {abs_path}")
+            return load_json_file(abs_path)
+    
+    print("❌ Aucun fichier inverted_index.json trouvé")
+    return {}
+
+
+def normalize_keyword(keyword):
+    """
+    Normalise un mot-clé pour la recherche
+    """
+    # Convertir en minuscules et supprimer les espaces inutiles
+    keyword = keyword.lower().strip()
+    
+    # Supprimer les caractères non alphabétiques
+    keyword = re.sub(r'[^a-z\s]', ' ', keyword)
+    
+    # Retirer les accents
+    keyword = ''.join(
+        c for c in unicodedata.normalize('NFD', keyword)
+        if unicodedata.category(c) != 'Mn' or c == ' '
+    )
+    
+    # Filtrer les mots vides et les mots trop courts
+    words = keyword.split()
+    filtered_words = [w for w in words if len(w) > 2 and w not in STOP_WORDS]
+    
+    return ' '.join(filtered_words) if filtered_words else ''
+
+
+def get_recipe_by_filename(filename):
+    """
+    Récupère une recette à partir de son fichier JSON
+    """
+    # Nettoyer et compléter le nom de fichier
+    if not filename.endswith('.json'):
+        filename = f"{filename}.json"
+    
+    file_path = os.path.join(RECIPES_FOLDER_PATH, filename)
+    
+    if not os.path.exists(file_path):
+        print(f"❌ Fichier non trouvé: {file_path}")
+        return None
+    
     try:
-        user_recipes_file = os.path.join(os.path.dirname(__file__), '../data/user_recipes.json')
+        with open(file_path, 'r', encoding='utf-8') as f:
+            recipe_data = json.load(f)
         
-        if os.path.exists(user_recipes_file):
-            with open(user_recipes_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return []
+        # Log de débogage pour les images
+        log_image_info(filename, recipe_data)
+        
+        # Ajouter l'ID de la recette
+        recipe_data['id'] = filename.replace('.json', '')
+        
+        # Adapter le format aux attentes de l'API
+        recipe_data = adapt_recipe_format(recipe_data)
+        
+        # Gérer l'URL de l'image (pour les recettes indexées)
+        recipe_data = handle_recipe_image(recipe_data)
+        
+        log_recipe_info(recipe_data)
+        
+        return recipe_data
+        
     except Exception as e:
-        print(f"❌ Erreur chargement recettes utilisateurs: {e}")
-        return []
+        print(f"⚠️ Erreur lors de la lecture du fichier {filename}: {e}")
+        traceback.print_exc()
+        return None
+
+
+def adapt_recipe_format(recipe_data):
+    """Adapte le format de la recette au format attendu par l'API"""
+    # Gérer le titre
+    if 'name' in recipe_data and 'title' not in recipe_data:
+        recipe_data['title'] = recipe_data['name']
+    
+    # Créer une description si absente
+    if 'description' not in recipe_data or not recipe_data.get('description'):
+        recipe_data['description'] = generate_recipe_description(recipe_data)
+    
+    # Assurer la présence des champs requis
+    recipe_data.setdefault('ingredients', [])
+    recipe_data.setdefault('steps', [])
+    recipe_data.setdefault('author', {'name': 'Chef Traditionnel'})
+    
+    return recipe_data
+
+
+def generate_recipe_description(recipe_data):
+    """Génère une description pour une recette"""
+    title = recipe_data.get('title') or recipe_data.get('name', 'Recette Marocaine')
+    ingredients = recipe_data.get('ingredients', [])
+    
+    if isinstance(ingredients, list) and ingredients:
+        main_ingredients = extract_main_ingredients(ingredients[:3])
+        if main_ingredients:
+            ing_text = ', '.join(main_ingredients)
+            return f"{title} - Recette marocaine traditionnelle avec {ing_text}"
+    
+    return f"{title} - Recette marocaine traditionnelle"
+
+
+def extract_main_ingredients(ingredients):
+    """Extrait les ingrédients principaux d'une liste"""
+    main_ingredients = []
+    for ing in ingredients:
+        clean_ing = re.sub(r'^[\d\s/.,]+[a-z]*\s*', '', ing, flags=re.IGNORECASE)
+        clean_ing = clean_ing.split(',')[0].strip()
+        if clean_ing and len(clean_ing) > 2:
+            main_ingredients.append(clean_ing.lower())
+    return main_ingredients
+
+
+def handle_recipe_image(recipe_data):
+    """Gère la conversion du chemin d'image en URL pour les recettes indexées"""
+    if 'image' in recipe_data and recipe_data['image']:
+        original_image = recipe_data['image']
+        # Nettoyer le chemin pour ne garder que le nom de fichier (Ex: tajine_poulet.jpg)
+        clean_filename = os.path.basename(original_image)
+        # Construire l'URL publique : /media/tajine_poulet.jpg
+        recipe_data['image'] = f"{settings.MEDIA_URL}{clean_filename}"
+        print(f"🔄 Conversion image: {original_image} → {recipe_data['image']}")
+    
+    return recipe_data
+
+
+def log_image_info(filename, recipe_data):
+    """Journalise les informations sur l'image d'une recette"""
+    image_present = 'image' in recipe_data
+    print(f"    🖼️ [IMAGE LOG] Fichier: {filename}")
+    print(f"    🖼️ [IMAGE LOG] Champ 'image' présent: {image_present}")
+    if image_present:
+        print(f"    🖼️ [IMAGE LOG] Valeur: {recipe_data['image']}")
+        print(f"    🖼️ [IMAGE LOG] Type: {type(recipe_data['image'])}")
+
+
+def log_recipe_info(recipe_data):
+    """Journalise les informations d'une recette"""
+    print(f"    ✅ Données adaptées:")
+    print(f"      - Titre: {recipe_data.get('title')}")
+    print(f"      - Description: {recipe_data.get('description', 'N/A')[:50]}...")
+    print(f"      - Ingrédients: {len(recipe_data.get('ingredients', []))}")
+    print(f"      - Étapes: {len(recipe_data.get('steps', []))}")
 
 
 # ============================================================
-# ENDPOINTS DE RECHERCHE DE RECETTES
+# FONCTIONS DE RECHERCHE
+# ============================================================
+
+def search_recipes_by_analysis(nom_recette, ingredients_visibles, inverted_index):
+    """
+    Recherche des recettes avec pondération
+    """
+    print(f"\n🧠 Recherche pondérée: Nom='{nom_recette}', Ingrédients={ingredients_visibles}")
+    
+    recipe_scores = {}
+    search_terms = build_search_terms(nom_recette, ingredients_visibles)
+    
+    # Rechercher chaque terme dans l'index
+    for term, weight in search_terms:
+        search_term_in_index(term, weight, inverted_index, recipe_scores)
+    
+    if not recipe_scores:
+        print("❌ Aucune recette trouvée")
+        return []
+    
+    # Trier et récupérer les meilleures recettes
+    return get_top_recipes(recipe_scores)
+
+
+def build_search_terms(nom_recette, ingredients_visibles):
+    """Construit la liste des termes de recherche avec leurs poids"""
+    search_terms = []
+    
+    # Poids élevé pour le nom de la recette
+    if nom_recette:
+        search_terms.append((nom_recette, 5.0))
+    
+    # Poids moyen pour les ingrédients
+    for ing in ingredients_visibles:
+        if ing.lower() != nom_recette.lower():
+            search_terms.append((ing, 2.0))
+    
+    return search_terms
+
+
+def search_term_in_index(term, weight, inverted_index, recipe_scores):
+    """Recherche un terme dans l'index inversé"""
+    term_normalized = normalize_keyword(term)
+    
+    if not term_normalized:
+        return
+    
+    words_to_search = term_normalized.split()
+    
+    for word in words_to_search:
+        if len(word) < 3:
+            continue
+        
+        # Recherche exacte
+        if word in inverted_index:
+            add_score_to_recipes(inverted_index[word], weight, recipe_scores)
+        # Recherche partielle (avec poids réduit)
+        elif len(word) >= 4:
+            search_partial_match(word, weight, inverted_index, recipe_scores)
+
+
+def search_partial_match(word, weight, inverted_index, recipe_scores):
+    """Recherche des correspondances partielles"""
+    for index_key, recipe_files in inverted_index.items():
+        if word in index_key or index_key in word:
+            add_score_to_recipes(recipe_files, weight * 0.5, recipe_scores)
+
+
+def add_score_to_recipes(recipe_files, score, recipe_scores):
+    """Ajoute un score à une liste de recettes"""
+    for recipe_file in recipe_files:
+        if recipe_file not in recipe_scores:
+            recipe_scores[recipe_file] = 0
+        recipe_scores[recipe_file] += score
+
+
+def get_top_recipes(recipe_scores, limit=5):
+    """Récupère les meilleures recettes basées sur leur score"""
+    sorted_recipe_ids = sorted(recipe_scores.items(), key=lambda x: x[1], reverse=True)
+    
+    print(f"📊 Top {limit} fichiers trouvés: {sorted_recipe_ids[:limit]}")
+    
+    top_recipes = []
+    for filename, score in sorted_recipe_ids[:limit]:
+        recipe = get_recipe_by_filename(filename)
+        if recipe:
+            recipe['match_score'] = score
+            top_recipes.append(recipe)
+        else:
+            print(f"⚠️ Fichier non trouvé: '{filename}' (Score: {score:.2f})")
+    
+    print(f"✅ Top {len(top_recipes)} recettes trouvées")
+    return top_recipes
+
+
+# ============================================================
+# ENDPOINTS API
 # ============================================================
 
 @require_http_methods(["GET"])
 def get_all_recipes(request):
-    """Retourne toutes les recettes (officielles + utilisateurs)"""
+    """Récupère toutes les recettes"""
     recipes_data = load_recipes_data()
     user_recipes = load_user_recipes()
-    
-    if recipes_data is None:
-        return JsonResponse({
-            'success': False,
-            'error': 'Problème avec le serveur. Impossible de charger les recettes.'
-        }, status=500)
-    
-    # Combiner les deux listes
     all_recipes = recipes_data + user_recipes
-    
-    return JsonResponse({
-        'success': True,
-        'recipes': all_recipes
-    })
+    return JsonResponse({'success': True, 'recipes': all_recipes})
 
 
 @require_http_methods(["GET"])
 def search_recipes(request):
-    """Recherche des recettes par mot-clé"""
+    """Recherche des recettes par texte"""
     query = request.GET.get('query', '').lower().strip()
     
     if not query:
-        return JsonResponse({
-            'success': True,
-            'recipes': []
-        })
+        return JsonResponse({'success': True, 'recipes': []})
     
-    recipes_data = load_recipes_data()
-    user_recipes = load_user_recipes()
+    all_recipes = load_recipes_data() + load_user_recipes()
     
-    if recipes_data is None:
-        return JsonResponse({
-            'success': False,
-            'error': 'Problème avec le serveur. Impossible de rechercher les recettes.'
-        }, status=500)
+    results = [
+        recipe for recipe in all_recipes 
+        if (query in recipe.get('title', '').lower() or
+            any(query in ingredient.lower() for ingredient in recipe.get('ingredients', [])))
+    ]
     
-    # Combiner toutes les recettes
-    all_recipes = recipes_data + user_recipes
-    
-    # Recherche dans les titres, descriptions et ingrédients
-    results = []
-    for recipe in all_recipes:
-        title_match = query in recipe.get('title', '').lower()
-        description_match = query in recipe.get('description', '').lower()
-        ingredients_match = any(query in ingredient.lower() for ingredient in recipe.get('ingredients', []))
-        
-        if title_match or description_match or ingredients_match:
-            results.append(recipe)
-    
-    return JsonResponse({
-        'success': True,
-        'recipes': results
-    })
+    return JsonResponse({'success': True, 'recipes': results})
 
 
 @require_http_methods(["GET"])
 def get_recipe_details(request, recipe_id):
-    """Retourne les détails d'une recette spécifique"""
-    recipes_data = load_recipes_data()
-    user_recipes = load_user_recipes()
+    """Récupère les détails d'une recette spécifique"""
+    print(f"📥 Demande de détails pour: {recipe_id}")
     
-    if recipes_data is None:
-        return JsonResponse({
-            'success': False,
-            'error': 'Problème avec le serveur. Impossible de charger la recette.'
-        }, status=500)
+    recipe_id = recipe_id.strip('/')
     
-    # Chercher dans toutes les recettes
-    all_recipes = recipes_data + user_recipes
-    recipe = next((r for r in all_recipes if r['id'] == recipe_id), None)
+    # Chercher d'abord dans les fichiers JSON
+    recipe = get_recipe_by_filename(recipe_id)
     
+    # Sinon chercher dans les listes chargées
+    if not recipe:
+        all_recipes = load_recipes_data() + load_user_recipes()
+        recipe = next((r for r in all_recipes if r['id'] == recipe_id), None)
+    
+    # Gérer l'URL de l'image si la recette vient des listes chargées et n'a pas été traitée
+    if recipe and 'image' in recipe and recipe['image'] and not recipe['image'].startswith(settings.MEDIA_URL):
+        recipe = handle_recipe_image(recipe)
+
     if recipe:
-        return JsonResponse({
-            'success': True,
-            'recipe': recipe
-        })
+        print(f"✅ Recette trouvée: {recipe.get('title', 'Sans titre')}")
+        return JsonResponse({'success': True, 'recipe': recipe})
     else:
-        return JsonResponse({
-            'success': False,
-            'error': 'Recette non trouvée'
-        }, status=404)
+        print(f"❌ Recette non trouvée: {recipe_id}")
+        return JsonResponse({'success': False, 'error': 'Recette non trouvée'}, status=404)
 
-
-# ============================================================
-# ANALYSE D'IMAGE AVEC GOOGLE GEMINI
-# ============================================================
 
 @csrf_exempt
 @require_http_methods(["POST"])
 def analyze_recipe_image(request):
-    """
-    Analyse une image de plat marocain avec Google Gemini AI
-    et retourne le nom du plat + ingrédients visibles en JSON
-    """
+    """Analyse une image pour identifier une recette"""
     try:
-        print("📸 Requête d'analyse d'image reçue")
+        print("📸 Analyse d'image avec recherche pondérée")
         
-        # Vérification de la présence de l'image
         if 'image' not in request.FILES:
-            print("❌ Aucune image dans la requête")
             return JsonResponse({'error': 'Aucune image fournie'}, status=400)
         
+        # Charger et analyser l'image
         image_file = request.FILES['image']
-        print(f"✅ Image reçue: {image_file.name}")
+        analysis_result = analyze_image_with_gemini(image_file)
         
-        # Chargement de l'image avec PIL
-        try:
-            image = Image.open(image_file)
-            print(f"✅ Image ouverte: {image.size}")
-        except Exception as e:
-            print(f"❌ Erreur ouverture image: {e}")
-            return JsonResponse({'error': f'Erreur ouverture image: {str(e)}'}, status=400)
+        if not analysis_result:
+            return JsonResponse({'success': False, 'error': 'Erreur d\'analyse d\'image'}, status=500)
         
-        # Initialisation du client Gemini
-        try:
-            api_key = "AIzaSyC8IWjx3f6oDHiGy_VyUu-8cM_t1B0FMxU"
-            client = genai.Client(api_key=api_key)
-            print("✅ Client Gemini initialisé")
-        except Exception as e:
-            print(f"❌ Erreur initialisation Gemini: {e}")
-            return JsonResponse({'error': f'Erreur API Gemini: {str(e)}'}, status=500)
+        # Rechercher les recettes correspondantes
+        inverted_index = load_inverted_index()
+        if not inverted_index:
+            return JsonResponse({'success': False, 'error': 'Index non disponible'}, status=500)
         
-        # Prompt pour l'analyse
-        prompt = """
-        Analyse cette image et renvoie uniquement une **liste JSON** avec :
-        1. "nom_recette" : le nom du plat marocain que tu reconnais.
-        2. "ingredients_visibles" : une liste des ingrédients que tu vois dans l'image (en anglais).
+        matching_recipes = search_recipes_by_analysis(
+            analysis_result['nom_recette'],
+            analysis_result['ingredients_visibles'],
+            inverted_index
+        )
         
-        Réponds uniquement en JSON, pas de texte supplémentaire.
-        """
+        log_matching_recipes(matching_recipes)
         
-        # Appel au modèle Gemini
-        try:
-            print("🤖 Appel à Gemini...")
-            response = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=[prompt, image],
-                config=types.GenerateContentConfig(response_modalities=['TEXT'])
-            )
-            print(f"✅ Réponse Gemini reçue: {response.text[:100]}...")
-        except Exception as e:
-            print(f"❌ Erreur appel Gemini: {e}")
-            return JsonResponse({'error': f'Erreur appel Gemini: {str(e)}'}, status=500)
-        
-        # Extraction et parsing de la réponse JSON
-        response_text = response.text.strip()
-        
-        # Nettoyage des balises markdown
-        if response_text.startswith('```json'):
-            response_text = response_text[7:]
-        if response_text.endswith('```'):
-            response_text = response_text[:-3]
-        response_text = response_text.strip()
-        
-        # Parsing du JSON
-        try:
-            analysis_result = json.loads(response_text)
-            print(f"✅ JSON parsé: {analysis_result}")
-        except json.JSONDecodeError as e:
-            print(f"❌ Erreur parsing JSON: {e}")
-            print(f"Texte reçu: {response_text}")
-            analysis_result = {
-                'nom_recette': 'Inconnu',
-                'ingredients_visibles': [],
-                'raw_response': response_text
-            }
-        
-        # Retour de la réponse
         return JsonResponse({
             'success': True,
-            'data': analysis_result
+            'matching_recipes': matching_recipes,
+            'count': len(matching_recipes)
         })
         
     except Exception as e:
-        print(f"❌ Erreur générale: {e}")
         traceback.print_exc()
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-# ============================================================
-# CRÉATION DE RECETTES
-# ============================================================
+def analyze_image_with_gemini(image_file):
+    """Analyse une image avec l'API Gemini"""
+    try:
+        image = Image.open(image_file)
+    except Exception:
+        return None
+    
+    # Assurez-vous que la clé API est définie dans votre environnement
+    api_key = os.environ.get("GEMINI_API_KEY", "AIzaSyALE1SZtmuISUME7XO90iCm9sDTV8ZFC4o") 
+    client = genai.Client(api_key=api_key)
+    
+    prompt = """Analyse cette image de plat marocain et réponds UNIQUEMENT en JSON avec cette structure exacte:
+{
+  "nom_recette": "nom de base du plat (exemple: tagine, pastilla, couscous, harira, etc.)",
+  "ingredients_visibles": ["ingredient1", "ingredient2", "ingredient3", ...]
+}
+
+IMPORTANT:
+- "nom_recette" doit contenir UNIQUEMENT le nom de base du plat marocain
+- Ne PAS inclure les ingrédients dans le nom
+- Réponds UNIQUEMENT avec le JSON, sans texte additionnel"""
+    
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=[prompt, image],
+        config=types.GenerateContentConfig(response_modalities=['TEXT'])
+    )
+    
+    response_text = response.text.strip().replace('```json', '').replace('```', '').strip()
+    
+    try:
+        result = json.loads(response_text)
+        return {
+            'nom_recette': result.get('nom_recette', '').lower().strip(),
+            'ingredients_visibles': [ing.lower().strip() for ing in result.get('ingredients_visibles', [])]
+        }
+    except json.JSONDecodeError:
+        return None
+
+
+def log_matching_recipes(matching_recipes):
+    """Journalise les recettes correspondantes"""
+    print(f"\n🖼️ [IMAGE LOG] Vérification des images dans {len(matching_recipes)} résultats:")
+    for i, recipe in enumerate(matching_recipes, 1):
+        print(f"  Recette {i}: {recipe.get('title', 'Sans titre')}")
+        print(f"      🖼️ Champ 'image' présent: {'image' in recipe}")
+        print(f"      🖼️ Valeur: {recipe.get('image', 'AUCUNE')}")
+
 
 @csrf_exempt
 @require_http_methods(["POST"])
 def create_user_recipe(request):
-    """Permet de créer des recettes et les sauvegarder dans user_recipes.json"""
+    """Crée une nouvelle recette utilisateur"""
     try:
-        print("📝 Requête de création de recette reçue")
-        
         # Récupérer les données du formulaire
-        title = request.POST.get('title', '').strip()
-        description = request.POST.get('description', '').strip()
-        ingredients = request.POST.get('ingredients', '')
-        steps = request.POST.get('steps', '')
-        user_name = request.POST.get('user_name', 'Chef Anonyme').strip()
+        required_fields = ['title', 'description', 'ingredients', 'steps']
+        field_values = {}
         
-        print(f"📋 Données reçues: title={title}, user_name={user_name}")
+        for field in required_fields:
+            value = request.POST.get(field, '').strip()
+            if not value:
+                return JsonResponse({'success': False, 'error': f'Le champ {field} est requis'}, status=400)
+            field_values[field] = value
         
-        # Validation des champs requis
-        if not all([title, description, ingredients, steps]):
-            print("❌ Champs manquants")
-            return JsonResponse({
-                'success': False,
-                'error': 'Tous les champs sont requis (titre, description, ingrédients, étapes)'
-            }, status=400)
+        user_name = request.POST.get('user_name', 'Chef zahira').strip()
         
-        # Parser les JSON des ingrédients et étapes
+        # Valider et parser les listes
         try:
-            ingredients_list = json.loads(ingredients)
-            steps_list = json.loads(steps)
-            print(f"✅ Ingrédients: {len(ingredients_list)}, Étapes: {len(steps_list)}")
-        except json.JSONDecodeError as e:
-            print(f"❌ Erreur parsing JSON: {e}")
-            return JsonResponse({
-                'success': False,
-                'error': 'Format des ingrédients ou étapes invalide'
-            }, status=400)
+            ingredients_list = json.loads(field_values['ingredients'])
+            steps_list = json.loads(field_values['steps'])
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Format des ingrédients ou étapes invalide'}, status=400)
         
-        # Gérer l'image uploadée
-        image_url = None
-        if 'image' in request.FILES:
-            image_file = request.FILES['image']
-            print(f"📷 Image reçue: {image_file.name}")
-            
-            # Créer le dossier pour les images
-            upload_dir = os.path.join(os.path.dirname(__file__), '../media/user_recipes')
-            os.makedirs(upload_dir, exist_ok=True)
-            
-            # Sauvegarder l'image avec un nom unique
-            filename = f"{uuid.uuid4()}_{image_file.name}"
-            filepath = os.path.join(upload_dir, filename)
-            
-            with open(filepath, 'wb+') as destination:
-                for chunk in image_file.chunks():
-                    destination.write(chunk)
-            
-            image_url = f"/media/user_recipes/{filename}"
-            print(f"✅ Image sauvegardée: {image_url}")
+        # Gérer l'image téléchargée
+        image_url = handle_uploaded_image(request) # <-- Appel à la fonction corrigée
         
         # Créer l'objet recette
         recipe_data = {
             'id': f"user_{int(time.time())}_{uuid.uuid4().hex[:8]}",
-            'title': title,
-            'description': description,
+            'title': field_values['title'],
+            'description': field_values['description'],
             'ingredients': ingredients_list,
             'steps': steps_list,
-            'image': image_url,
-            'author': {
-                'name': user_name
-            },
+            'image': image_url, # <-- L'URL est maintenant correcte (/media/nom_du_fichier.jpg)
+            'author': {'name': user_name},
             'created_at': time.strftime('%Y-%m-%d %H:%M:%S'),
             'user_created': True
         }
         
-        print(f"✅ Recette créée: {recipe_data['id']}")
-        
-        # Chemin vers le fichier JSON des recettes utilisateurs
-        user_recipes_file = os.path.join(os.path.dirname(__file__), '../data/user_recipes.json')
-        
-        # Créer le dossier data s'il n'existe pas
-        os.makedirs(os.path.dirname(user_recipes_file), exist_ok=True)
-        
-        # Charger les recettes existantes
-        user_recipes = load_user_recipes()
-        print(f"📚 Recettes existantes: {len(user_recipes)}")
-        
-        # Ajouter la nouvelle recette
-        user_recipes.append(recipe_data)
-        
-        # Sauvegarder dans le fichier JSON
-        with open(user_recipes_file, 'w', encoding='utf-8') as f:
-            json.dump(user_recipes, f, ensure_ascii=False, indent=2)
-        
-        print(f"💾 Recette sauvegardée dans {user_recipes_file}")
-        print(f"✅ Nouvelle recette créée par {user_name}: {title}")
-        print(f"📊 Total de recettes utilisateurs: {len(user_recipes)}")
+        # Sauvegarder la recette
+        save_user_recipe(recipe_data)
         
         return JsonResponse({
-            'success': True,
-            'recipe': recipe_data,
+            'success': True, 
+            'recipe': recipe_data, 
             'message': 'Recette créée avec succès !'
         })
         
     except Exception as e:
-        print(f"❌ Erreur création recette: {e}")
         traceback.print_exc()
-        return JsonResponse({
-            'success': False,
-            'error': 'Problème avec le serveur. Impossible de créer la recette.'
-        }, status=500)
+        return JsonResponse({'success': False, 'error': 'Impossible de créer la recette.'}, status=500)
+
+
+def handle_uploaded_image(request):
+    """
+    CORRECTION APPLIQUÉE ICI: Gère le téléchargement d'une image en utilisant 
+    settings.MEDIA_ROOT et settings.MEDIA_URL pour garantir que l'image est 
+    sauvegardée au bon endroit et a une URL correcte.
+    """
+    if 'image' not in request.FILES:
+        return None
+    
+    image_file = request.FILES['image']
+    
+    # 1. Utiliser le chemin physique MEDIA_ROOT pour le dossier d'upload
+    # MEDIA_ROOT = '.../search_api/indexing/Recipies/images'
+    upload_dir = settings.MEDIA_ROOT 
+    os.makedirs(upload_dir, exist_ok=True)
+    
+    # 2. Générer un nom de fichier unique et sécurisé
+    extension = os.path.splitext(image_file.name)[1]
+    filename = f"{uuid.uuid4().hex}{extension}"
+    filepath = os.path.join(upload_dir, filename)
+    
+    # 3. Sauvegarde du fichier
+    with open(filepath, 'wb+') as destination:
+        for chunk in image_file.chunks():
+            destination.write(chunk)
+    
+    # 4. Retourner l'URL publique (/media/nom_fichier_unique.ext)
+    return f"{settings.MEDIA_URL}{filename}"
+
+
+def save_user_recipe(recipe_data):
+    """Sauvegarde une recette utilisateur dans le fichier JSON"""
+    user_recipes = load_user_recipes()
+    user_recipes.append(recipe_data)
+    
+    with open(USER_RECIPES_PATH, 'w', encoding='utf-8') as f:
+        json.dump(user_recipes, f, ensure_ascii=False, indent=2)
 
 
 @require_http_methods(["GET"])
 def get_user_recipes(request):
-    """Récupère toutes les recettes créées par les utilisateurs"""
+    """Récupère toutes les recettes utilisateur"""
     user_recipes = load_user_recipes()
-    
-    return JsonResponse({
-        'success': True,
-        'recipes': user_recipes
-    })
+    return JsonResponse({'success': True, 'recipes': user_recipes})

@@ -1,0 +1,23 @@
+{
+  "name": "Batbout (Moroccan Flatbread)",
+  "image": "images/batbout.jpeg",
+  "ingredients": [
+    "flour",
+    "fine semolina",
+    "yeast",
+    "warm water",
+    "salt"
+  ],
+  "steps": [
+    "In a large bowl, mix flour, semolina, yeast, salt and warm water.",
+    "Knead until the dough is smooth and elastic.",
+    "Let the dough rest until doubled in volume.",
+    "Divide into balls, then flatten into discs about 1–2 cm thick.",
+    "Cook in a dry skillet (no oil) until both sides are golden and bread is puffed."
+  ],
+  "prepTime": "PT10M",
+  "cookTime": "PT15M",
+  "totalTime": "PT25M",
+  "recipeYield": 8,
+  "description": "Simple and fluffy Moroccan flatbread, cooked on a skillet — ideal as accompaniment or sandwich bread."
+}

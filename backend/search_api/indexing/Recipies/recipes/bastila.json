@@ -1,0 +1,30 @@
+{
+  "name": "Chicken Bastilla (Pastilla)",
+  "image": "images/bastila.jpeg",
+  "ingredients": [
+    "chicken (pieces or shredded)",
+    "almonds",
+    "onions",
+    "eggs",
+    "sugar",
+    "cinnamon",
+    "brick pastry sheets (or filo dough)",
+    "butter or oil",
+    "salt",
+    "pepper"
+  ],
+  "steps": [
+    "Cook the chicken with onions, salt and pepper until fully cooked, then shred the meat.",
+    "Toast the almonds, then roughly chop or grind them.",
+    "Beat the eggs and cook them with the shredded chicken, adding a bit of sugar and cinnamon to taste.",
+    "Take a pastry sheet, brush with butter or oil, place some filling in the center.",
+    "Fold the edges of the sheet to wrap the filling, place in a buttered or oiled baking dish.",
+    "Repeat until all filling is used; brush the top with melted butter.",
+    "Bake until the pastry is golden and crisp."
+  ],
+  "prepTime": "PT25M",
+  "cookTime": "PT60M",
+  "totalTime": "PT85M",
+  "recipeYield": 6,
+  "description": "A sweet-savory Moroccan pastilla with shredded chicken, almonds and spices wrapped in crisp pastry."
+}

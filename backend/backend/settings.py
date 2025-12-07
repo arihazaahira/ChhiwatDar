@@ -8,6 +8,19 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+MEDIA_URL = '/media/'  # URL publique pour accéder aux images
+
+MEDIA_ROOT = os.path.join(
+    BASE_DIR,
+    'search_api',
+    'indexing',
+    'Recipies',
+    'images' # dossier où se trouvent VOS images
+)
+
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 SECRET_KEY = 'django-insecure-votre-secret-key-ici'
 
 DEBUG = True
