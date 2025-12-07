@@ -6,7 +6,6 @@ CORRECTION FINALE: Suppression des doublons et ordre correct des routes
 from django.urls import path
 from . import views
 from .voice_search.speech_to_text import transcribe
-from .voice_search.speachV2 import transcribe_v2
 
 urlpatterns = [
     # Liste de toutes les recettes
@@ -32,7 +31,5 @@ urlpatterns = [
     # 🎤 Transcription seule (sans recherche)
     path('transcribe/', transcribe, name='transcribe'),
 
-     # 🎤 Transcription v2 (nouvelle API Client) ✅
-    path('transcribe-v2/', transcribe_v2, name='transcribe_v2'),
 
 ]
