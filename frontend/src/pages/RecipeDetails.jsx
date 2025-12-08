@@ -172,7 +172,7 @@ const RecipeDetails = () => {
                         <ol className="steps-list">
                             {recipe.steps.map((step, index) => (
                                 <li key={index} className="step-item">
-                                    <div className="step-number">{index + 1}</div>
+                                    <div className="step-number"></div>
                                     <div className="step-content">
                                         <p className="step-text">{step}</p>
                                     </div>

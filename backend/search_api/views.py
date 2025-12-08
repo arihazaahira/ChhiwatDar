@@ -1,6 +1,6 @@
 """
 Views pour l'API de recherche de recettes marocaines avec Inverted Index
-(Version finale avec correction du chemin d'accès aux fichiers et amélioration du filtrage des mots-clés)
+(Version finale avec recherche vocale utilisant l'inverted index)
 """
 
 import json
@@ -527,7 +527,7 @@ def create_user_recipe(request):
             return JsonResponse({'success': False, 'error': 'Format des ingrédients ou étapes invalide'}, status=400)
         
         # Gérer l'image téléchargée
-        image_url = handle_uploaded_image(request) # <-- Appel à la fonction corrigée
+        image_url = handle_uploaded_image(request)
         
         # Créer l'objet recette
         recipe_data = {
@@ -536,7 +536,7 @@ def create_user_recipe(request):
             'description': field_values['description'],
             'ingredients': ingredients_list,
             'steps': steps_list,
-            'image': image_url, # <-- L'URL est maintenant correcte (/media/nom_du_fichier.jpg)
+            'image': image_url,
             'author': {'name': user_name},
             'created_at': time.strftime('%Y-%m-%d %H:%M:%S'),
             'user_created': True
@@ -557,32 +557,27 @@ def create_user_recipe(request):
 
 
 def handle_uploaded_image(request):
-    """
-    CORRECTION APPLIQUÉE ICI: Gère le téléchargement d'une image en utilisant 
-    settings.MEDIA_ROOT et settings.MEDIA_URL pour garantir que l'image est 
-    sauvegardée au bon endroit et a une URL correcte.
-    """
+    """Gère le téléchargement d'une image"""
     if 'image' not in request.FILES:
         return None
     
     image_file = request.FILES['image']
     
-    # 1. Utiliser le chemin physique MEDIA_ROOT pour le dossier d'upload
-    # MEDIA_ROOT = '.../search_api/indexing/Recipies/images'
+    # Utiliser le chemin physique MEDIA_ROOT pour le dossier d'upload
     upload_dir = settings.MEDIA_ROOT 
     os.makedirs(upload_dir, exist_ok=True)
     
-    # 2. Générer un nom de fichier unique et sécurisé
+    # Générer un nom de fichier unique et sécurisé
     extension = os.path.splitext(image_file.name)[1]
     filename = f"{uuid.uuid4().hex}{extension}"
     filepath = os.path.join(upload_dir, filename)
     
-    # 3. Sauvegarde du fichier
+    # Sauvegarde du fichier
     with open(filepath, 'wb+') as destination:
         for chunk in image_file.chunks():
             destination.write(chunk)
     
-    # 4. Retourner l'URL publique (/media/nom_fichier_unique.ext)
+    # Retourner l'URL publique (/media/nom_fichier_unique.ext)
     return f"{settings.MEDIA_URL}{filename}"
 
 
@@ -601,10 +596,12 @@ def get_user_recipes(request):
     user_recipes = load_user_recipes()
     return JsonResponse({'success': True, 'recipes': user_recipes})
 
+
 @csrf_exempt
 def voice_search(request):
     """
     Endpoint pour la recherche vocale avec transcription Gemini puis recherche
+    avec inverted index (même logique que l'analyse d'image)
     """
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=400)
@@ -635,36 +632,103 @@ def voice_search(request):
             "success": False
         }, status=400)
     
-    # Charger les recettes
-    try:
-        recipes_data = load_recipes_data()
-    except Exception as e:
+    # Charger l'inverted index (même logique que l'analyse d'image)
+    inverted_index = load_inverted_index()
+    if not inverted_index:
         return JsonResponse({
-            'error': f'Erreur chargement recettes: {str(e)}',
-            'success': False
+            'success': False,
+            'error': 'Index non disponible',
+            'query': query
         }, status=500)
     
-    # Rechercher dans les recettes
-    query_lower = query.lower().strip()
-    results = []
+    print(f"🗣️ Recherche vocale avec inverted index: '{query}'")
     
-    for recipe in recipes_data:
-        title_match = query_lower in recipe.get('title', '').lower()
-        description_match = query_lower in recipe.get('description', '').lower()
-        ingredients_match = any(
-            query_lower in str(ingredient).lower() 
-            for ingredient in recipe.get('ingredients', [])
-        )
-        
-        if title_match or description_match or ingredients_match:
-            results.append(recipe)
+    # Analyser la requête pour extraire nom de recette et ingrédients
+    # Similaire à l'analyse d'image, mais avec le texte transcrit
+    analysis_result = analyze_text_query(query)
+    
+    # Rechercher les recettes avec la même logique que l'analyse d'image
+    matching_recipes = search_recipes_by_analysis(
+        analysis_result['nom_recette'],
+        analysis_result['ingredients_visibles'],
+        inverted_index
+    )
+    
+    log_matching_recipes(matching_recipes)
     
     return JsonResponse({
         'success': True,
         'transcription': transcription_data.get('transcription', ''),
         'translation': transcription_data.get('translation'),
         'query': query,
-        'results': results,
-        'count': len(results),
+        'analysis_result': analysis_result,
+        'matching_recipes': matching_recipes,
+        'count': len(matching_recipes),
         'model': transcription_data.get('model', 'unknown')
     })
+
+
+def analyze_text_query(query_text):
+    """
+    Analyse une requête texte pour extraire nom de recette et ingrédients
+    Similaire à l'analyse d'image, mais adaptée pour le texte
+    """
+    # Nettoyer la requête
+    query_lower = query_text.lower().strip()
+    
+    # Liste des plats marocains courants pour la détection
+    moroccan_dishes = {
+        'tagine', 'tajine', 'couscous', 'pastilla', 'harira', 'rfissa', 'taktouka',
+        'zaalouk', 'briouat', 'msemen', 'baghrir', 'shebakia', 'makouda',
+        'kefta', 'merguez', 'tanjia', 'mrouzia', 'bastilla', 'bessara',
+        'seffa', 'harcha', 'makrout', 'ghriba'
+    }
+    
+    # Détecter le nom du plat
+    detected_dish = None
+    for dish in moroccan_dishes:
+        if dish in query_lower:
+            detected_dish = dish
+            break
+    
+    # Extraire les ingrédients potentiels
+    # Mots communs qui indiquent des ingrédients
+    ingredient_indicators = {
+        'avec', 'de', 'aux', 'au', 'du', 'des', 'les', 'à la', 'à l\'', 'd\'',
+        'containing', 'with', 'made of', 'made with', 'including'
+    }
+    
+    # Liste d'ingrédients marocains courants
+    common_ingredients = {
+        'poulet', 'chicken', 'agneau', 'lamb', 'boeuf', 'beef', 'poisson', 'fish',
+        'légumes', 'vegetables', 'carottes', 'carrots', 'pommes de terre', 'potatoes',
+        'oignons', 'onions', 'ail', 'garlic', 'citron', 'lemon', 'olives', 'olives',
+        'amandes', 'almonds', 'noix', 'walnuts', 'raisins', 'raisins', 'pruneaux', 'prunes',
+        'abricots', 'apricots', 'figues', 'figs', 'dattes', 'dates', 'miel', 'honey',
+        'cannelle', 'cinnamon', 'gingembre', 'ginger', 'curcuma', 'turmeric',
+        'cumin', 'cumin', 'paprika', 'paprika', 'safran', 'saffron', 'coriandre', 'coriander',
+        'persil', 'parsley', 'menthe', 'mint', 'semoule', 'semolina', 'farine', 'flour',
+        'oeufs', 'eggs', 'beurre', 'butter', 'huile', 'oil', 'sel', 'salt', 'poivre', 'pepper'
+    }
+    
+    # Détecter les ingrédients dans la requête
+    detected_ingredients = []
+    words = query_lower.split()
+    
+    for word in words:
+        # Nettoyer le mot
+        clean_word = re.sub(r'[^a-zéèêëàâäôöûüç]', '', word)
+        if clean_word in common_ingredients:
+            detected_ingredients.append(clean_word)
+    
+    # Si pas d'ingrédients détectés, utiliser les mots significatifs
+    if not detected_ingredients:
+        # Filtrer les mots courts et les stop words
+        meaningful_words = [w for w in words if len(w) > 3 and w not in STOP_WORDS]
+        if meaningful_words:
+            detected_ingredients = meaningful_words[:3]  # Limiter à 3 ingrédients
+    
+    return {
+        'nom_recette': detected_dish or 'plat marocain',  # Valeur par défaut
+        'ingredients_visibles': detected_ingredients[:5]  # Limiter à 5 ingrédients
+    }

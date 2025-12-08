@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useVoiceSearch } from '../../hooks/useVoiceSearch';
 
 const VoiceRecorder = ({ onTranscript, onResults }) => {
@@ -13,16 +13,22 @@ const VoiceRecorder = ({ onTranscript, onResults }) => {
     cancelRecording 
   } = useVoiceSearch();
 
-  // Envoyer la transcription au parent
-  React.useEffect(() => {
-    if (transcript && onTranscript) {
+  // Utiliser des refs pour suivre si on a déjà envoyé les données
+  const lastTranscriptSent = useRef('');
+  const lastResultsSent = useRef(null);
+
+  // Envoyer la transcription au parent (UNE SEULE FOIS)
+  useEffect(() => {
+    if (transcript && transcript !== lastTranscriptSent.current && onTranscript) {
+      lastTranscriptSent.current = transcript;
       onTranscript(transcript);
     }
   }, [transcript, onTranscript]);
 
-  // Envoyer les résultats au parent
-  React.useEffect(() => {
-    if (results && results.length > 0 && onResults) {
+  // Envoyer les résultats au parent (UNE SEULE FOIS)
+  useEffect(() => {
+    if (results && results.length > 0 && results !== lastResultsSent.current && onResults) {
+      lastResultsSent.current = results;
       onResults(results);
     }
   }, [results, onResults]);
@@ -36,6 +42,10 @@ const VoiceRecorder = ({ onTranscript, onResults }) => {
         console.error('Erreur lors de l\'arrêt:', err);
       }
     } else {
+      // Réinitialiser les refs avant de démarrer
+      lastTranscriptSent.current = '';
+      lastResultsSent.current = null;
+      
       // Démarrer l'enregistrement
       try {
         await startRecording();
@@ -47,6 +57,9 @@ const VoiceRecorder = ({ onTranscript, onResults }) => {
 
   const handleCancel = () => {
     cancelRecording();
+    // Réinitialiser les refs
+    lastTranscriptSent.current = '';
+    lastResultsSent.current = null;
   };
 
   return (

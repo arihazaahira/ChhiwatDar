@@ -1,8 +1,10 @@
 import { useState, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { voiceSearchApi } from '../api/voiceSearchApi';
 import { AudioRecorderService } from '../services/audioService';
 
 export const useVoiceSearch = () => {
+  const navigate = useNavigate();
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -48,9 +50,35 @@ export const useVoiceSearch = () => {
       // Envoyer au backend Django
       const response = await voiceSearchApi.searchByVoice(audioBlob);
       
+      // Mettre à jour l'état local
       setTranscript(response.transcription || '');
       setResults(response.results || []);
       setIsProcessing(false);
+
+      // ✅ NAVIGATION VERS LA PAGE DE RÉSULTATS
+      if (response.success && response.matching_recipes) {
+        navigate('/voice-results', {
+          state: {
+            matching_recipes: response.matching_recipes,
+            transcription: response.transcription,
+            translation: response.translation,
+            analysis_result: response.analysis_result,
+            count: response.count,
+            query: response.query,
+            model: response.model || 'unknown'
+          }
+        });
+      } else if (response.results && response.results.length > 0) {
+        // Fallback pour l'ancien format de réponse
+        navigate('/voice-results', {
+          state: {
+            matching_recipes: response.results,
+            transcription: response.transcription || response.query,
+            count: response.results.length,
+            query: response.query
+          }
+        });
+      }
 
       return response;
     } catch (err) {
@@ -59,7 +87,7 @@ export const useVoiceSearch = () => {
       console.error('Erreur stopRecording:', err);
       throw err;
     }
-  }, []);
+  }, [navigate]); // ✅ Ajouter navigate aux dépendances
 
   /**
    * Annule l'enregistrement en cours

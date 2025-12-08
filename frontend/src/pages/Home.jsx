@@ -83,10 +83,12 @@ const Home = () => {
 
             {/* Recipes Section */}
             <section className="recipes-section" id="recettes">
-                <h2 className="section-title">Les Recettes Marocaines</h2>
-                <p className="section-subtitle">
-                    Découvrez l'authenticité de la cuisine marocaine traditionnelle
-                </p>
+                <div className="recipes-header">
+        <h2 className="section-title">Les Recettes Marocaines</h2>
+        <p className="section-subtitle">
+           Éveillez vos sens aux saveurs de la terre marocaine 
+        </p>
+    </div>
                 
                 <RecipeList recipes={recipes} loading={loading} />
             </section>

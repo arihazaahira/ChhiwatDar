@@ -292,7 +292,8 @@ nav a:hover::after {
 
 /* === SECTION RECETTES === */
 .recipes-section {
-    padding: 100px 30px;
+     padding: 2px 30px 100px 30px; /* Réduit le padding-top de 100px à 60px */
+
     background: #0a0a0a;
     position: relative;
 }
@@ -308,24 +309,47 @@ nav a:hover::after {
     background: linear-gradient(90deg, transparent, rgba(218, 165, 32, 0.3), transparent);
 }
 
+/* Nouveau conteneur pour le header */
+.recipes-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 80px;
+    width: 100%;
+}
+
 .section-title {
-    text-align: center;
     font-size: 48px;
     color: #DAA520;
     margin-bottom: 20px;
     font-weight: 300;
     letter-spacing: 8px;
     text-transform: uppercase;
+    text-align: center;
+    position: relative;
+}
+
+/* Option: Ajouter une ligne décorative sous le titre */
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #DAA520, transparent);
 }
 
 .section-subtitle {
-    text-align: center;
     color: #c9c9c9;
     font-size: 16px;
     letter-spacing: 3px;
-    margin-bottom: 80px;
     font-weight: 300;
     font-style: italic;
+    max-width: 600px;
+    text-align: center;
+    line-height: 1.8;
 }
 
 /* Grille de recettes */

@@ -15,5 +15,22 @@
     },
     "created_at": "2025-12-05 03:07:52",
     "user_created": true
+  },
+  {
+    "id": "user_1765200482_434b2f4a",
+    "title": "tagine",
+    "description": "je test",
+    "ingredients": [
+      "200g test"
+    ],
+    "steps": [
+      "je tset"
+    ],
+    "image": null,
+    "author": {
+      "name": "chef zahira"
+    },
+    "created_at": "2025-12-08 14:28:02",
+    "user_created": true
   }
 ]
