@@ -8,7 +8,7 @@ const TextSearchBar = ({
 }) => {
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
-      onSearch();
+      onSearch(); // Appelle la fonction fournie par le parent
     }
   };
 

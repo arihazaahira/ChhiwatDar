@@ -368,11 +368,12 @@
     "97_sellou_traditionnel.json"
   ],
   "fish": [
+    "90_poisson_marine.json",
     "19_tajine_poisson.json",
     "23_pastilla_au_poisson.json",
     "3_pastilla.json",
-    "76_pastilla_fruits_mer.json",
-    "90_poisson_marine.json"
+    "76_pastilla_fruits_mer.json"
+    
   ],
   "flour": [
     "100_fekkas_anis.json",
@@ -995,6 +996,13 @@
     "75_pastilla_lait.json",
     "76_pastilla_fruits_mer.json"
   ],
+   "bastilla": [
+    "23_pastilla_au_poisson.json",
+    "24_pastilla_au_poulet.json",
+    "3_pastilla.json",
+    "75_pastilla_lait.json",
+    "76_pastilla_fruits_mer.json"
+  ],
   "pepper": [
     "13_mechoui.json",
     "17_tajine_viande.json",
@@ -1371,7 +1379,15 @@
   ],
   "kaab": [
     "60_kaab_ghzal.json",
-    "61_briwat_kaab_ghzal"
+    "61_briwat_kaab_ghzal.json"
+  ],
+   "ramadan": [
+    "4_harira.json",
+    "33_chebakia_miel.json",
+    "14_sellou.json",
+    "10_msemen.json",
+    "26_briouates_au_fromage.json",
+    "30_kefta_mkaouara.json"
   ]
   
 }

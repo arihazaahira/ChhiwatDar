@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import "../styles/ChhiwatDar.css";
 
-// Components
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import TextSearchBar from '../components/search/TextSearchBar';
@@ -9,34 +8,32 @@ import VoiceRecorder from '../components/search/VoiceRecorder';
 import ImageUploader from '../components/search/ImageUploader';
 import RecipeList from '../components/recipes/RecipeList';
 
-// Hooks
 import { useRecipes } from '../hooks/useRecipes';
+import { useTextSearch } from '../hooks/useTextSearch';
 
 const Home = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchStatus, setSearchStatus] = useState('');
     
     const { recipes, loading, fetchRecipes } = useRecipes();
+    const { search, loading: textLoading, error: searchError } = useTextSearch();
 
-    // Recherche par texte
-    const handleTextSearch = () => {
-        if (searchQuery.trim()) {
-            setSearchStatus(`Recherche en cours pour: "${searchQuery}"`);
-            fetchRecipes(searchQuery);
-        } else {
-            fetchRecipes();
-            setSearchStatus('');
-        }
+    // Recherche texte
+    const handleTextSearch = async () => {
+        if (!searchQuery.trim()) return;
+
+        setSearchStatus(`🔍 Analyse: "${searchQuery}"...`);
+        await search(searchQuery); // hook gère la navigation vers /text-results
     };
 
-    // Recherche par voix
+    // Recherche vocale
     const handleVoiceSearch = (transcript) => {
         setSearchQuery(transcript);
-        setSearchStatus('Recherche vocale: ' + transcript);
+        setSearchStatus('🎤 Recherche vocale: ' + transcript);
         fetchRecipes(transcript);
     };
 
-    // Recherche par image
+    // Recherche image
     const handleImageSearch = (query) => {
         setSearchQuery(query);
         fetchRecipes(query);
@@ -48,10 +45,8 @@ const Home = () => {
 
     return (
         <div className="chhiwat-dar">
-            {/* Hero Section */}
             <section className="hero-section">
                 <Navbar />
-                
                 <div className="title-container">
                     <h1 className="main-title">chhiwatDar</h1>
                     <h2 className="arabic-title">شهيوات الدار</h2>
@@ -61,13 +56,12 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Search Container */}
             <div className="search-container">
                 <div className="search-box">
                     <TextSearchBar 
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
-                        onSearch={handleTextSearch}
+                        onSearch={handleTextSearch} // <-- hook connecté ici
                     />
                     <div className="search-actions">
                         <VoiceRecorder onTranscript={handleVoiceSearch} />
@@ -81,14 +75,13 @@ const Home = () => {
                 <div className="search-status">{searchStatus}</div>
             </div>
 
-            {/* Recipes Section */}
             <section className="recipes-section" id="recettes">
                 <div className="recipes-header">
-        <h2 className="section-title">Les Recettes Marocaines</h2>
-        <p className="section-subtitle">
-           Éveillez vos sens aux saveurs de la terre marocaine 
-        </p>
-    </div>
+                    <h2 className="section-title">Les Recettes Marocaines</h2>
+                    <p className="section-subtitle">
+                        Éveillez vos sens aux saveurs de la terre marocaine 
+                    </p>
+                </div>
                 
                 <RecipeList recipes={recipes} loading={loading} />
             </section>

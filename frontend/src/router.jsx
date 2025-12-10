@@ -5,6 +5,7 @@ import ImageResultPage from './pages/ImageResultPage';  // ← Vérifiez ce chem
 import CreateRecipePage from './pages/CreateRecipePage';
 import RecipeDetails from './pages/RecipeDetails'; // Ajoutez cette importation
 import VoiceResultPage from './pages/VoiceResultPage';
+import TextResultPage from './pages/TextResultPage';
 
 const Router = () => {
   return (
@@ -15,6 +16,8 @@ const Router = () => {
         <Route path="/image-result" element={<ImageResultPage />} />
         <Route path="/create-recipe" element={<CreateRecipePage />} />
         <Route path="/voice-results" element={<VoiceResultPage />} />
+        <Route path="/text-results" element={<TextResultPage />} />
+
 
       </Routes>
     </BrowserRouter>

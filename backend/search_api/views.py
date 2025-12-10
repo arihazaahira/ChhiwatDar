@@ -1,6 +1,6 @@
 """
 Views pour l'API de recherche de recettes marocaines avec Inverted Index
-(Version finale avec recherche vocale utilisant l'inverted index)
+(Version corrigée - API Gemini unifiée)
 """
 
 import json
@@ -18,13 +18,17 @@ import google.generativeai as genai
 from PIL import Image
 from .voice_search.speech_to_text import transcribe
 
+# Import pour charger les variables d'environnement
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement depuis le fichier .env
+load_dotenv()
 
 # ============================================================
 # CONSTANTES ET CONFIGURATION
 # ============================================================
 
 # Chemins des fichiers
-# Remarque : BASE_DIR est le dossier 'image_search' dans votre architecture
 BASE_DIR = os.path.dirname(__file__) 
 RECIPES_JSON_PATH = os.path.join(BASE_DIR, '../data/recipes.json')
 USER_RECIPES_PATH = os.path.join(BASE_DIR, '../data/user_recipes.json')
@@ -33,9 +37,15 @@ INVERTED_INDEX_PATHS = [
 ]
 RECIPES_FOLDER_PATH = os.path.join(BASE_DIR, './indexing/Recipies/recipes')
 
+# Configuration Gemini (à faire une seule fois au démarrage)
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+if not GEMINI_API_KEY:
+    raise ValueError("❌ ERREUR: GEMINI_API_KEY non trouvée dans les variables d'environnement. "
+                     "Veuillez la définir dans le fichier .env")
+genai.configure(api_key=GEMINI_API_KEY)
+
 # Mots vides (stop words) étendus
 STOP_WORDS = {
-    # Articles et mots courants
     'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 
     'are', 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 
     'both', 'but', 'by', 'can', 'cannot', 'could', 'did', 'do', 'does', 'doing', 'down', 
@@ -49,8 +59,6 @@ STOP_WORDS = {
     'until', 'up', 'very', 'was', 'we', 'were', 'what', 'when', 'where', 'which', 'while', 
     'who', 'whom', 'why', 'will', 'with', 'would', 'you', 'your', 'yours', 'yourself', 
     'yourselves',
-    
-    # Termes culinaires génériques
     'recipe', 'recipes', 'dish', 'dishes', 'cook', 'cooking', 'cooked', 'cuisine', 
     'food', 'ingredient', 'ingredients', 'preparation', 'prepare', 'prepared', 'preparing', 
     'step', 'steps', 'method', 'instructions', 'serves', 'serving', 'servings', 'make', 
@@ -62,21 +70,15 @@ STOP_WORDS = {
     'fried', 'simmer', 'simmering', 'simmered', 'season', 'seasoning', 'seasoned', 'taste', 
     'tasting', 'serve', 'served', 'let', 'allow', 'bring', 'take', 'use', 'using', 'used', 
     'set', 'get', 'become',
-    
-    # Unités de mesure et temps
     'minute', 'minutes', 'hour', 'hours', 'second', 'seconds', 'time', 'times', 'cup', 
     'cups', 'tablespoon', 'tablespoons', 'teaspoon', 'teaspoons', 'tbsp', 'tsp', 'ounce', 
     'ounces', 'oz', 'pound', 'pounds', 'lb', 'lbs', 'gram', 'grams', 'kilogram', 
     'kilograms', 'kg', 'liter', 'liters', 'milliliter', 'milliliters', 'ml', 'piece', 
     'pieces', 'pinch', 'dash', 'handful',
-    
-    # Nombres
     'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 
     'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 
     'eighteen', 'nineteen', 'twenty', 'thirty', 'forty', 'fifty', 'hundred', 'thousand', 
     'first', 'second', 'third', 'fourth', 'half', 'quarter',
-    
-    # Mots additionnels spécifiques
     'style', 'traditional', 'dried', 'fruits', 'seeds'
 }
 
@@ -120,22 +122,14 @@ def load_inverted_index():
 
 
 def normalize_keyword(keyword):
-    """
-    Normalise un mot-clé pour la recherche
-    """
-    # Convertir en minuscules et supprimer les espaces inutiles
+    """Normalise un mot-clé pour la recherche"""
     keyword = keyword.lower().strip()
-    
-    # Supprimer les caractères non alphabétiques
     keyword = re.sub(r'[^a-z\s]', ' ', keyword)
-    
-    # Retirer les accents
     keyword = ''.join(
         c for c in unicodedata.normalize('NFD', keyword)
         if unicodedata.category(c) != 'Mn' or c == ' '
     )
     
-    # Filtrer les mots vides et les mots trop courts
     words = keyword.split()
     filtered_words = [w for w in words if len(w) > 2 and w not in STOP_WORDS]
     
@@ -143,10 +137,7 @@ def normalize_keyword(keyword):
 
 
 def get_recipe_by_filename(filename):
-    """
-    Récupère une recette à partir de son fichier JSON
-    """
-    # Nettoyer et compléter le nom de fichier
+    """Récupère une recette à partir de son fichier JSON"""
     if not filename.endswith('.json'):
         filename = f"{filename}.json"
     
@@ -160,18 +151,10 @@ def get_recipe_by_filename(filename):
         with open(file_path, 'r', encoding='utf-8') as f:
             recipe_data = json.load(f)
         
-        # Log de débogage pour les images
         log_image_info(filename, recipe_data)
-        
-        # Ajouter l'ID de la recette
         recipe_data['id'] = filename.replace('.json', '')
-        
-        # Adapter le format aux attentes de l'API
         recipe_data = adapt_recipe_format(recipe_data)
-        
-        # Gérer l'URL de l'image (pour les recettes indexées)
         recipe_data = handle_recipe_image(recipe_data)
-        
         log_recipe_info(recipe_data)
         
         return recipe_data
@@ -184,15 +167,12 @@ def get_recipe_by_filename(filename):
 
 def adapt_recipe_format(recipe_data):
     """Adapte le format de la recette au format attendu par l'API"""
-    # Gérer le titre
     if 'name' in recipe_data and 'title' not in recipe_data:
         recipe_data['title'] = recipe_data['name']
     
-    # Créer une description si absente
     if 'description' not in recipe_data or not recipe_data.get('description'):
         recipe_data['description'] = generate_recipe_description(recipe_data)
     
-    # Assurer la présence des champs requis
     recipe_data.setdefault('ingredients', [])
     recipe_data.setdefault('steps', [])
     recipe_data.setdefault('author', {'name': 'Chef Traditionnel'})
@@ -229,9 +209,7 @@ def handle_recipe_image(recipe_data):
     """Gère la conversion du chemin d'image en URL pour les recettes indexées"""
     if 'image' in recipe_data and recipe_data['image']:
         original_image = recipe_data['image']
-        # Nettoyer le chemin pour ne garder que le nom de fichier (Ex: tajine_poulet.jpg)
         clean_filename = os.path.basename(original_image)
-        # Construire l'URL publique : /media/tajine_poulet.jpg
         recipe_data['image'] = f"{settings.MEDIA_URL}{clean_filename}"
         print(f"🔄 Conversion image: {original_image} → {recipe_data['image']}")
     
@@ -262,15 +240,12 @@ def log_recipe_info(recipe_data):
 # ============================================================
 
 def search_recipes_by_analysis(nom_recette, ingredients_visibles, inverted_index):
-    """
-    Recherche des recettes avec pondération
-    """
+    """Recherche des recettes avec pondération"""
     print(f"\n🧠 Recherche pondérée: Nom='{nom_recette}', Ingrédients={ingredients_visibles}")
     
     recipe_scores = {}
     search_terms = build_search_terms(nom_recette, ingredients_visibles)
     
-    # Rechercher chaque terme dans l'index
     for term, weight in search_terms:
         search_term_in_index(term, weight, inverted_index, recipe_scores)
     
@@ -278,7 +253,6 @@ def search_recipes_by_analysis(nom_recette, ingredients_visibles, inverted_index
         print("❌ Aucune recette trouvée")
         return []
     
-    # Trier et récupérer les meilleures recettes
     return get_top_recipes(recipe_scores)
 
 
@@ -286,11 +260,9 @@ def build_search_terms(nom_recette, ingredients_visibles):
     """Construit la liste des termes de recherche avec leurs poids"""
     search_terms = []
     
-    # Poids élevé pour le nom de la recette
     if nom_recette:
         search_terms.append((nom_recette, 5.0))
     
-    # Poids moyen pour les ingrédients
     for ing in ingredients_visibles:
         if ing.lower() != nom_recette.lower():
             search_terms.append((ing, 2.0))
@@ -311,10 +283,8 @@ def search_term_in_index(term, weight, inverted_index, recipe_scores):
         if len(word) < 3:
             continue
         
-        # Recherche exacte
         if word in inverted_index:
             add_score_to_recipes(inverted_index[word], weight, recipe_scores)
-        # Recherche partielle (avec poids réduit)
         elif len(word) >= 4:
             search_partial_match(word, weight, inverted_index, recipe_scores)
 
@@ -391,16 +361,12 @@ def get_recipe_details(request, recipe_id):
     print(f"📥 Demande de détails pour: {recipe_id}")
     
     recipe_id = recipe_id.strip('/')
-    
-    # Chercher d'abord dans les fichiers JSON
     recipe = get_recipe_by_filename(recipe_id)
     
-    # Sinon chercher dans les listes chargées
     if not recipe:
         all_recipes = load_recipes_data() + load_user_recipes()
         recipe = next((r for r in all_recipes if r['id'] == recipe_id), None)
     
-    # Gérer l'URL de l'image si la recette vient des listes chargées et n'a pas été traitée
     if recipe and 'image' in recipe and recipe['image'] and not recipe['image'].startswith(settings.MEDIA_URL):
         recipe = handle_recipe_image(recipe)
 
@@ -422,14 +388,12 @@ def analyze_recipe_image(request):
         if 'image' not in request.FILES:
             return JsonResponse({'error': 'Aucune image fournie'}, status=400)
         
-        # Charger et analyser l'image
         image_file = request.FILES['image']
         analysis_result = analyze_image_with_gemini(image_file)
         
         if not analysis_result:
             return JsonResponse({'success': False, 'error': 'Erreur d\'analyse d\'image'}, status=500)
         
-        # Rechercher les recettes correspondantes
         inverted_index = load_inverted_index()
         if not inverted_index:
             return JsonResponse({'success': False, 'error': 'Index non disponible'}, status=500)
@@ -460,10 +424,6 @@ def analyze_image_with_gemini(image_file):
     except Exception:
         return None
     
-    # Assurez-vous que la clé API est définie dans votre environnement
-    api_key = os.environ.get("GEMINI_API_KEY", "AIzaSyALE1SZtmuISUME7XO90iCm9sDTV8ZFC4o") 
-    client = genai.Client(api_key=api_key)
-    
     prompt = """Analyse cette image de plat marocain et réponds UNIQUEMENT en JSON avec cette structure exacte:
 {
   "nom_recette": "nom de base du plat (exemple: tagine, pastilla, couscous, harira, etc.)",
@@ -475,21 +435,18 @@ IMPORTANT:
 - Ne PAS inclure les ingrédients dans le nom
 - Réponds UNIQUEMENT avec le JSON, sans texte additionnel"""
     
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=[prompt, image],
-        config=types.GenerateContentConfig(response_modalities=['TEXT'])
-    )
-    
-    response_text = response.text.strip().replace('```json', '').replace('```', '').strip()
-    
     try:
+        model = genai.GenerativeModel('gemini-2.5-flash')
+        response = model.generate_content([prompt, image])
+        response_text = response.text.strip().replace('```json', '').replace('```', '').strip()
+        
         result = json.loads(response_text)
         return {
             'nom_recette': result.get('nom_recette', '').lower().strip(),
             'ingredients_visibles': [ing.lower().strip() for ing in result.get('ingredients_visibles', [])]
         }
-    except json.JSONDecodeError:
+    except Exception as e:
+        print(f"❌ Erreur Gemini: {e}")
         return None
 
 
@@ -507,7 +464,6 @@ def log_matching_recipes(matching_recipes):
 def create_user_recipe(request):
     """Crée une nouvelle recette utilisateur"""
     try:
-        # Récupérer les données du formulaire
         required_fields = ['title', 'description', 'ingredients', 'steps']
         field_values = {}
         
@@ -519,17 +475,14 @@ def create_user_recipe(request):
         
         user_name = request.POST.get('user_name', 'Chef zahira').strip()
         
-        # Valider et parser les listes
         try:
             ingredients_list = json.loads(field_values['ingredients'])
             steps_list = json.loads(field_values['steps'])
         except json.JSONDecodeError:
             return JsonResponse({'success': False, 'error': 'Format des ingrédients ou étapes invalide'}, status=400)
         
-        # Gérer l'image téléchargée
         image_url = handle_uploaded_image(request)
         
-        # Créer l'objet recette
         recipe_data = {
             'id': f"user_{int(time.time())}_{uuid.uuid4().hex[:8]}",
             'title': field_values['title'],
@@ -542,7 +495,6 @@ def create_user_recipe(request):
             'user_created': True
         }
         
-        # Sauvegarder la recette
         save_user_recipe(recipe_data)
         
         return JsonResponse({
@@ -562,22 +514,17 @@ def handle_uploaded_image(request):
         return None
     
     image_file = request.FILES['image']
-    
-    # Utiliser le chemin physique MEDIA_ROOT pour le dossier d'upload
     upload_dir = settings.MEDIA_ROOT 
     os.makedirs(upload_dir, exist_ok=True)
     
-    # Générer un nom de fichier unique et sécurisé
     extension = os.path.splitext(image_file.name)[1]
     filename = f"{uuid.uuid4().hex}{extension}"
     filepath = os.path.join(upload_dir, filename)
     
-    # Sauvegarde du fichier
     with open(filepath, 'wb+') as destination:
         for chunk in image_file.chunks():
             destination.write(chunk)
     
-    # Retourner l'URL publique (/media/nom_fichier_unique.ext)
     return f"{settings.MEDIA_URL}{filename}"
 
 
@@ -599,28 +546,20 @@ def get_user_recipes(request):
 
 @csrf_exempt
 def voice_search(request):
-    """
-    Endpoint pour la recherche vocale avec transcription Gemini puis recherche
-    avec inverted index (même logique que l'analyse d'image)
-    """
+    """Endpoint pour la recherche vocale"""
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=400)
     
-    # Appeler la fonction transcribe
     transcription_response = transcribe(request)
     
-    # Si erreur de transcription, retourner directement
     if transcription_response.status_code != 200:
         return transcription_response
     
-    # Parser la réponse JSON de transcription
     transcription_data = json.loads(transcription_response.content)
     
-    # Vérifier le succès
     if not transcription_data.get('success', False):
         return transcription_response
     
-    # Récupérer le texte transcrit (priorité à la traduction si disponible)
     query = transcription_data.get('translation') or transcription_data.get('transcription', '')
     
     if not query or query.upper() == 'N/A':
@@ -632,7 +571,6 @@ def voice_search(request):
             "success": False
         }, status=400)
     
-    # Charger l'inverted index (même logique que l'analyse d'image)
     inverted_index = load_inverted_index()
     if not inverted_index:
         return JsonResponse({
@@ -643,11 +581,8 @@ def voice_search(request):
     
     print(f"🗣️ Recherche vocale avec inverted index: '{query}'")
     
-    # Analyser la requête pour extraire nom de recette et ingrédients
-    # Similaire à l'analyse d'image, mais avec le texte transcrit
     analysis_result = analyze_text_query(query)
     
-    # Rechercher les recettes avec la même logique que l'analyse d'image
     matching_recipes = search_recipes_by_analysis(
         analysis_result['nom_recette'],
         analysis_result['ingredients_visibles'],
@@ -669,14 +604,9 @@ def voice_search(request):
 
 
 def analyze_text_query(query_text):
-    """
-    Analyse une requête texte pour extraire nom de recette et ingrédients
-    Similaire à l'analyse d'image, mais adaptée pour le texte
-    """
-    # Nettoyer la requête
+    """Analyse une requête texte pour extraire nom de recette et ingrédients"""
     query_lower = query_text.lower().strip()
     
-    # Liste des plats marocains courants pour la détection
     moroccan_dishes = {
         'tagine', 'tajine', 'couscous', 'pastilla', 'harira', 'rfissa', 'taktouka',
         'zaalouk', 'briouat', 'msemen', 'baghrir', 'shebakia', 'makouda',
@@ -684,21 +614,12 @@ def analyze_text_query(query_text):
         'seffa', 'harcha', 'makrout', 'ghriba'
     }
     
-    # Détecter le nom du plat
     detected_dish = None
     for dish in moroccan_dishes:
         if dish in query_lower:
             detected_dish = dish
             break
     
-    # Extraire les ingrédients potentiels
-    # Mots communs qui indiquent des ingrédients
-    ingredient_indicators = {
-        'avec', 'de', 'aux', 'au', 'du', 'des', 'les', 'à la', 'à l\'', 'd\'',
-        'containing', 'with', 'made of', 'made with', 'including'
-    }
-    
-    # Liste d'ingrédients marocains courants
     common_ingredients = {
         'poulet', 'chicken', 'agneau', 'lamb', 'boeuf', 'beef', 'poisson', 'fish',
         'légumes', 'vegetables', 'carottes', 'carrots', 'pommes de terre', 'potatoes',
@@ -711,24 +632,208 @@ def analyze_text_query(query_text):
         'oeufs', 'eggs', 'beurre', 'butter', 'huile', 'oil', 'sel', 'salt', 'poivre', 'pepper'
     }
     
-    # Détecter les ingrédients dans la requête
     detected_ingredients = []
     words = query_lower.split()
     
     for word in words:
-        # Nettoyer le mot
         clean_word = re.sub(r'[^a-zéèêëàâäôöûüç]', '', word)
         if clean_word in common_ingredients:
             detected_ingredients.append(clean_word)
     
-    # Si pas d'ingrédients détectés, utiliser les mots significatifs
     if not detected_ingredients:
-        # Filtrer les mots courts et les stop words
         meaningful_words = [w for w in words if len(w) > 3 and w not in STOP_WORDS]
         if meaningful_words:
-            detected_ingredients = meaningful_words[:3]  # Limiter à 3 ingrédients
+            detected_ingredients = meaningful_words[:3]
     
     return {
-        'nom_recette': detected_dish or 'plat marocain',  # Valeur par défaut
-        'ingredients_visibles': detected_ingredients[:5]  # Limiter à 5 ingrédients
+        'nom_recette': detected_dish or 'plat marocain',
+        'ingredients_visibles': detected_ingredients[:5]
     }
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def text_search(request):
+    """Endpoint pour la recherche textuelle Darija avec Gemini"""
+    print("\n" + "="*80)
+    print("🚀 DÉBUT RECHERCHE TEXTUELLE DARIJA")
+    print("="*80)
+    
+    try:
+        print(f"📥 MÉTHODE HTTP: {request.method}")
+        print(f"📥 CONTENT-TYPE: {request.content_type}")
+        
+        try:
+            raw_body = request.body.decode('utf-8')
+            print(f"📥 CORPS BRUT REÇU ({len(raw_body)} caractères):")
+            print(f"   '{raw_body[:200]}{'...' if len(raw_body) > 200 else ''}'")
+            
+            body = json.loads(raw_body)
+            text = body.get("text", "").strip()
+            
+            print(f"\n📝 TEXTE DARIJA EXTRACT:")
+            print(f"   '{text}'")
+            print(f"   Longueur: {len(text)} caractères")
+            
+        except json.JSONDecodeError as json_err:
+            print(f"❌ ERREUR JSON: {json_err}")
+            return JsonResponse({
+                'error': 'Format JSON invalide',
+                'success': False,
+                'details': str(json_err)
+            }, status=400)
+        except UnicodeDecodeError as unicode_err:
+            print(f"❌ ERREUR UNICODE: {unicode_err}")
+            return JsonResponse({
+                'error': 'Erreur d\'encodage du texte',
+                'success': False,
+                'details': str(unicode_err)
+            }, status=400)
+        
+        if not text:
+            print("❌ ERREUR: Texte vide ou non fourni")
+            return JsonResponse({
+                "error": "Aucun texte fourni",
+                "success": False
+            }, status=400)
+        
+        print(f"\n🔑 VÉRIFICATION CLÉ API GEMINI")
+        if not GEMINI_API_KEY or GEMINI_API_KEY == "":
+            print("❌ ERREUR: Clé API Gemini non configurée")
+            return JsonResponse({
+                'success': False,
+                'error': 'Configuration API manquante',
+                'details': 'GEMINI_API_KEY non configurée'
+            }, status=500)
+        
+        print(f"✅ Clé API configurée (longueur: {len(GEMINI_API_KEY)})")
+        
+        print(f"\n🤖 ANALYSE AVEC GEMINI")
+        print(f"   Texte à analyser: '{text[:50]}...'")
+        
+        try:
+            model = genai.GenerativeModel('gemini-2.5-flash')
+            
+            prompt = f"""This is Moroccan Darija written with French characters. Translate the text to English, but **do NOT translate any food names**. Keep the food names exactly as they appear. Translate all verbs, pronouns, and other words to English. Answer with the full translated sentence, keeping the food names intact. 
+
+Text: "{text}"
+
+Answer:"""
+            
+            print(f"📤 Envoi prompt à Gemini...")
+            
+            response = model.generate_content(prompt)
+            dish_name_en = response.text.strip().lower()
+            
+            print(f"📥 Réponse Gemini brute: '{dish_name_en}'")
+            
+            dish_name_en = re.sub(r'[^\w\s]', '', dish_name_en)
+            dish_name_en = dish_name_en.strip()
+            
+            print(f"✅ NOM DE PLAT NETTOYÉ: '{dish_name_en}'")
+            
+            if not dish_name_en or dish_name_en in ['', 'n/a', 'none', 'unknown']:
+                print("❌ ERREUR: Nom de plat vide ou invalide")
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Impossible d\'extraire le nom du plat',
+                    'text': text,
+                    'details': 'Réponse Gemini invalide ou vide'
+                }, status=500)
+                
+        except Exception as gemini_err:
+            print(f"❌ ERREUR GEMINI: {gemini_err}")
+            traceback.print_exc()
+            return JsonResponse({
+                'success': False,
+                'error': 'Erreur lors de l\'analyse Gemini',
+                'text': text,
+                'details': str(gemini_err)
+            }, status=500)
+        
+        print(f"\n📚 CHARGEMENT INDEX INVERSE")
+        inverted_index = load_inverted_index()
+        
+        if not inverted_index:
+            print("❌ ERREUR: Index inversé non disponible")
+            return JsonResponse({
+                'success': False,
+                'error': 'Index non disponible',
+                'text': text,
+                'dish_name': dish_name_en
+            }, status=500)
+        
+        print(f"✅ INDEX CHARGÉ: {len(inverted_index)} termes")
+        
+        print(f"\n🔍 RECHERCHE DANS L'INDEX")
+        print(f"   Terme recherché: '{dish_name_en}'")
+        
+        recipe_scores = {}
+        search_terms = [(dish_name_en, 5.0)]
+        
+        for term, weight in search_terms:
+            term_normalized = normalize_keyword(term)
+            print(f"   Terme normalisé: '{term_normalized}'")
+            
+            if term_normalized:
+                words_to_search = term_normalized.split()
+                for word in words_to_search:
+                    if len(word) < 3:
+                        continue
+                    
+                    if word in inverted_index:
+                        print(f"   ✅ Mot '{word}' trouvé dans l'index")
+                        for recipe_file in inverted_index[word]:
+                            if recipe_file not in recipe_scores:
+                                recipe_scores[recipe_file] = 0
+                            recipe_scores[recipe_file] += weight
+                    elif len(word) >= 4:
+                        print(f"   🔍 Recherche partielle pour '{word}'")
+        
+        print(f"\n📊 RÉSULTATS RECHERCHE")
+        if recipe_scores:
+            sorted_recipe_ids = sorted(recipe_scores.items(), key=lambda x: x[1], reverse=True)
+            print(f"✅ {len(sorted_recipe_ids)} fichiers trouvés")
+        else:
+            print("❌ Aucun résultat trouvé")
+            return JsonResponse({
+                'success': True,
+                'message': 'Aucune recette trouvée',
+                'original_text': text,
+                'dish_name_english': dish_name_en,
+                'matching_recipes': [],
+                'count': 0
+            })
+        
+        print(f"\n📥 CHARGEMENT DES RECETTES")
+        matching_recipes = []
+        for filename, score in sorted_recipe_ids[:5]:
+            recipe = get_recipe_by_filename(filename)
+            if recipe:
+                recipe['match_score'] = score
+                matching_recipes.append(recipe)
+                print(f"   ✅ '{filename}' chargé - Score: {score:.2f}")
+            else:
+                print(f"   ❌ '{filename}' NON TROUVÉ")
+        
+        print(f"\n✅ RECHERCHE TERMINÉE")
+        print(f"   Recettes trouvées: {len(matching_recipes)}")
+        print("="*80)
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Recherche Darija réussie',
+            'original_text': text,
+            'dish_name_english': dish_name_en,
+            'matching_recipes': matching_recipes,
+            'count': len(matching_recipes)
+        })
+        
+    except Exception as e:
+        print(f"\n❌ ERREUR INATTENDUE: {e}")
+        traceback.print_exc()
+        return JsonResponse({
+            'success': False,
+            'error': f'Erreur serveur: {str(e)}',
+            'traceback': traceback.format_exc() if settings.DEBUG else None
+        }, status=500)

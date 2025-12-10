@@ -30,6 +30,8 @@ urlpatterns = [
     
     # 🎤 Transcription seule (sans recherche)
     path('transcribe/', transcribe, name='transcribe'),
+    path('text-search/', views.text_search, name='text_search'),
+
 
 
 ]

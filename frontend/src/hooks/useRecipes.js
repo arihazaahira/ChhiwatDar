@@ -23,7 +23,7 @@ const defaultRecipes = [
     difficulte: "Facile"
   },
   {
-    id: "Bastila ",
+    id: "bastila",
     title: "Bastila au Poulet",
     image: recipeImages.bastila,  // ← Image locale
     description: "Feuilleté sucré-salé typique de la cuisine marocaine.",
@@ -127,10 +127,13 @@ export const useRecipes = () => {
     fetchRecipes();
   }, [fetchRecipes]);
 
+  // ⭐ AJOUT : Retourner setRecipes et setLoading en plus
   return {
     recipes,
     loading,
     error,
-    fetchRecipes
+    fetchRecipes,
+    setRecipes,    // ← NOUVEAU
+    setLoading     // ← NOUVEAU
   };
 };
