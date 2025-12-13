@@ -32,5 +32,41 @@
     },
     "created_at": "2025-12-08 14:28:02",
     "user_created": true
+  },
+  {
+    "id": "user_1765632336_b9e96c2a",
+    "title": "tagine",
+    "description": "je test",
+    "ingredients": [
+      "200 test"
+    ],
+    "steps": [
+      "etape1",
+      "etape2"
+    ],
+    "image": null,
+    "author": {
+      "name": "chef zahira"
+    },
+    "created_at": "2025-12-13 14:25:36",
+    "user_created": true
+  },
+  {
+    "id": "user_1765635881_c64a95e5",
+    "title": "recette zahira",
+    "description": "test",
+    "ingredients": [
+      "200g ing1"
+    ],
+    "steps": [
+      "etape1",
+      "etape2"
+    ],
+    "image": null,
+    "author": {
+      "name": "chef zahira"
+    },
+    "created_at": "2025-12-13 15:24:41",
+    "user_created": true
   }
 ]

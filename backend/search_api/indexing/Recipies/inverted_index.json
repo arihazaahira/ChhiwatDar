@@ -375,6 +375,13 @@
     "76_pastilla_fruits_mer.json"
     
   ],
+  "chbakiya":[
+    "102_chebakia_traditionnelle.json",
+    "11_chebakia.json",
+    "33_chebakia_miel.json"
+
+
+  ],
   "flour": [
     "100_fekkas_anis.json",
     "101_makrout_dattes.json",
@@ -1245,7 +1252,10 @@
   ],
     "wedding": [
     "23_pastilla_au_poisson.json",
-    "91_calamar_farci.json"
+    "91_calamar_farci.json",
+    "87_dejaj_mhemer.json",
+    "69_tajine_pruneaux.json"
+
   ],
   "tomato": [
     "1_tajine_marocain.json",
@@ -1388,6 +1398,26 @@
     "10_msemen.json",
     "26_briouates_au_fromage.json",
     "30_kefta_mkaouara.json"
+  ],
+  "festival":[
+    "60_kaab_ghzal.json",
+    "99_ghriba_coco.json",
+    "101_fekkas_anis.json",
+    "37_batbout.json",
+    "10_msemen.json",
+    "69_tajine_pruneaux",
+    "24_pastilla_au_poulet.json"
+    
+  ],
+   "aid":[
+    "60_kaab_ghzal.json",
+    "99_ghriba_coco.json",
+    "101_fekkas_anis.json",
+    "37_batbout.json",
+    "10_msemen.json",
+    "69_tajine_pruneaux",
+    "24_pastilla_au_poulet.json"
+    
   ]
   
 }
